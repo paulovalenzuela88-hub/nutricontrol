@@ -769,7 +769,7 @@ export default function App() {
           <button onClick={() => { setTab('hoy'); setModal('Desayuno'); setAiFoods([]); setAiSelected([]); setAiError(''); setPhoto(null); }}>🍴 <span>Alimentación</span></button>
           <button onClick={() => { setTab('hoy'); setExerciseOpen(true); }}>🏋️ <span>Ejercicios</span></button>
           <button onClick={() => { setTab('hoy'); setSupplementOpen(true); setSupplementPhoto(null); setSupplementResult(null); setSupplementError(''); }}>💊 <span>Suplementos</span></button>
-          <button onClick={() => setTab('hoy')}>💧 <span>Agua</span></button>
+          <button onClick={() => { const v = Number(prompt('Agua en ml. Usa un número positivo para agregar y negativo para quitar:', '250') || 0); if (Number.isFinite(v) && v !== 0) addWater(v); }}>💧 <span>Agua</span></button>
           <button onClick={() => { setTab('hoy'); editSleep(); }}>◔ <span>Sueño</span></button>
           <button className={tab === 'semana' ? 'active' : ''} onClick={() => setTab('semana')}>▥ <span>Progreso</span></button>
           <button onClick={() => setTab('hoy')}>🏆 <span>Misiones</span></button>
