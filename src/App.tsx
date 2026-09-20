@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { api, image } from './appdeployClient';
 
 type Micros = {
@@ -272,6 +272,50 @@ const characterImages: Record<string, string> = {
   bokuto: 'https://haikyuu.fandom.com/wiki/Special:FilePath/Bokuto.png',
 };
 
+const jikanCharacterCache: Record<string, string> = {};
+
+function CharacterAvatar({ characterId, name, className = '' }: { characterId: string; name: string; className?: string }) {
+  const [src, setSrc] = useState<string>(() => jikanCharacterCache[characterId] || characterDisplayImage(characterImages[characterId] || ''));
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const cached = jikanCharacterCache[characterId];
+    if (cached) { setSrc(cached); return () => { cancelled = true; }; }
+
+    const query = encodeURIComponent(name);
+    fetch(`https://api.jikan.moe/v4/characters?q=${query}&limit=1`)
+      .then(r => r.ok ? r.json() : Promise.reject(new Error('character lookup failed')))
+      .then(data => {
+        const imageUrl = data?.data?.[0]?.images?.webp?.small_image_url
+          || data?.data?.[0]?.images?.jpg?.small_image_url
+          || data?.data?.[0]?.images?.webp?.image_url
+          || data?.data?.[0]?.images?.jpg?.image_url;
+        if (!cancelled && imageUrl) {
+          jikanCharacterCache[characterId] = imageUrl;
+          setSrc(imageUrl);
+          setFailed(false);
+        }
+      })
+      .catch(() => { /* keep the local/remote fallback */ });
+
+    return () => { cancelled = true; };
+  }, [characterId, name]);
+
+  return <img
+    className={className}
+    src={src || characterAvatarDataUri(characterId)}
+    alt={name}
+    referrerPolicy="no-referrer"
+    onError={() => {
+      if (!failed) {
+        setFailed(true);
+        setSrc(characterAvatarDataUri(characterId));
+      }
+    }}
+  />;
+}
+
 function dailyCharacterMessage(theme: string, character: string, day: Day, targets: Targets, level: number) {
   const keyName = character || defaultAnimeCharacter(theme);
   const proteinPct = targets.p ? day.meals ? Object.values(day.meals).flat().reduce((s, f) => s + f.p, 0) / targets.p : 0 : 0;  const calories = day.meals ? Object.values(day.meals).flat().reduce((s, f) => s + f.kcal, 0) : 0;
@@ -443,7 +487,12 @@ function calculateTargets(age: number, sex: 'hombre' | 'mujer', weight: number, 
     : 10 * weight + 6.25 * height - 5 * age - 161;
   const activityFactor = { sedentario: 1.2, ligero: 1.35, moderado: 1.55, alto: 1.725 }[activity];
   const tdee = bmr * activityFactor;
-  const calories = Math.round(Math.max(sex === 'mujer' ? 1300 : 1500, tdee * ({ perder: 0.85, mantener: 1, ganar: 1.1 }[goal])));
+  const deficitByActivity = { sedentario: 500, ligero: 600, moderado: 700, alto: 800 }[activity];
+  const calories = Math.round(
+    goal === 'perder'
+      ? Math.max(sex === 'mujer' ? 1300 : 1500, tdee - deficitByActivity)
+      : tdee * ({ mantener: 1, ganar: 1.1 }[goal])
+  );
   const proteinPerKg = { perder: 1.8, mantener: 1.6, ganar: 1.8 }[goal];
   const p = Math.round(weight * proteinPerKg);
   const f = Math.round((calories * 0.28) / 9);
@@ -979,7 +1028,7 @@ export default function App() {
             <div className="themeGrid">{animeThemes.map(([theme,name,desc]) => <button key={theme} className={active.animeTheme === theme ? 'themeActive' : ''} onClick={() => changeAnimeTheme(theme)}><div className="themeBanner"><img src={proxiedImage(themeBanners[theme])} alt={name} referrerPolicy="no-referrer" data-original-src={themeBanners[theme]} onError={handleImageError} /><div className="themeBannerShade" /><div className="themeBannerText"><b>{name}</b><small>{desc}</small><em>NUTRICONTROL · RPG SEASON</em></div></div></button>)}</div>
             <h3>🧑‍🎤 Personaje</h3>
             <p>Elige el personaje que representará este perfil. Puedes cambiarlo cuando quieras.</p>
-            <div className="characterGrid">{(animeCharacters[active.animeTheme] || []).map(([characterId, name]) => <button key={characterId} className={active.animeCharacter === characterId ? 'characterActive' : ''} onClick={() => changeAnimeCharacter(characterId)}><span className="characterBadge"><img src={characterDisplayImage(characterImages[characterId] || themeCharacterImages[active.animeTheme])} alt={name} referrerPolicy="no-referrer" data-original-src={characterImages[characterId] || themeCharacterImages[active.animeTheme]} data-character-key={characterId} data-image-stage="0" data-character-fallback={characterAvatarDataUri(characterId)} onError={handleImageError} /></span><b>{name}</b></button>)}</div>
+            <div className="characterGrid">{(animeCharacters[active.animeTheme] || []).map(([characterId, name]) => <button key={characterId} className={active.animeCharacter === characterId ? 'characterActive' : ''} onClick={() => changeAnimeCharacter(characterId)}><span className="characterBadge"><CharacterAvatar characterId={characterId} name={name} /></span><b>{name}</b></button>)}</div>
             <div className="selectedCharacter"><img className="selectedThemeLogo" src={themeAssets[active.animeTheme]?.logo} alt={themeAssets[active.animeTheme]?.alt || 'Logo anime'} /><span>Personaje activo: <b>{animeCharacterName(active.animeTheme, active.animeCharacter)}</b><small>{themeAssets[active.animeTheme]?.credit}</small></span></div>
             <h3>🏆 Temporada</h3>
             {active.seasonStartedAt ? <div className="seasonBox"><b>Temporada {seasonNumber(active.seasonStartedAt)}</b><span>Iniciada el {new Date(active.seasonStartedAt + 'T12:00:00').toLocaleDateString('es-CL')}</span><small>{Math.round(seasonProgress(active.seasonStartedAt))}% del ciclo actual</small></div> : <div className="seasonBox"><b>Aún no iniciada</b><span>La temporada comenzará cuando marques tu primer hito.</span><button className="primary" onClick={markFirstMilestone}>🏆 Marcar primer hito</button></div>}
@@ -1003,7 +1052,7 @@ export default function App() {
           <aside className="rightRail">
             <div className="railDate"><span>🔔</span><b>{new Date(date + 'T12:00:00').toLocaleDateString('es-CL', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}</b></div>
             <section className="profileRail">
-              <div className="profileRailImage"><img src={characterDisplayImage(currentCharacterImage)} alt={currentCharacterName} referrerPolicy="no-referrer" data-original-src={currentCharacterImage} data-character-key={active?.animeCharacter || defaultAnimeCharacter(active?.animeTheme || 'hajime')} data-image-stage="0" data-character-fallback={characterAvatarDataUri(active?.animeCharacter || 'ippo')} onError={handleImageError} /><button onClick={() => setTab('perfil')} aria-label="Editar personaje">✎</button></div>
+              <div className="profileRailImage"><CharacterAvatar characterId={active?.animeCharacter || defaultAnimeCharacter(active?.animeTheme || 'hajime')} name={currentCharacterName} /><button onClick={() => setTab('perfil')} aria-label="Editar personaje">✎</button></div>
               <h3>{currentCharacterName}</h3><p>Miembro desde {active?.seasonStartedAt ? new Date(active.seasonStartedAt + 'T12:00:00').toLocaleDateString('es-CL') : 'hoy'}</p>
               <div className="railSeason"><b>TEMPORADA {active?.seasonStartedAt ? seasonNumber(active.seasonStartedAt) : 1}</b><span>Día {active?.seasonStartedAt ? seasonDays : 1} de 90</span></div>
               <div className="railBar"><i style={{ width: seasonPct + '%' }} /></div>
@@ -1011,7 +1060,7 @@ export default function App() {
               <blockquote>“{characterMessage.split('. ')[0]}.”<small>✦ — {currentCharacterName}</small></blockquote>
             </section>
             <section className="railMissions"><h3>🎯 Misiones de hoy</h3>{missionItems.map(([icon,label,done]) => <div key={label} className={done ? 'mission done' : 'mission'}><span>{done ? '✓' : '□'}</span>{icon}<b>{label}</b></div>)}</section>
-            <section className="railQuote"><img src={characterDisplayImage(currentCharacterImage)} alt="" referrerPolicy="no-referrer" data-original-src={currentCharacterImage} data-character-key={active?.animeCharacter || defaultAnimeCharacter(active?.animeTheme || 'hajime')} data-image-stage="0" data-character-fallback={characterAvatarDataUri(active?.animeCharacter || 'ippo')} onError={handleImageError} /><b>LOS LÍMITES<br />SOLO EXISTEN<br />EN LA MENTE.</b></section>
+            <section className="railQuote"><CharacterAvatar characterId={active?.animeCharacter || defaultAnimeCharacter(active?.animeTheme || 'hajime')} name={currentCharacterName} /><b>LOS LÍMITES<br />SOLO EXISTEN<br />EN LA MENTE.</b></section>
           </aside>
         </div>
       </main>
