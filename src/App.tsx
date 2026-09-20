@@ -155,6 +155,7 @@ const themeBanners: Record<string, string> = {
 };
 
 const proxiedImage = (url: string) => url ? `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=1600&fit=inside&q=88` : '';
+const characterProxy = (url: string) => url ? `https://images.weserv.nl/?url=${encodeURIComponent(url)}&w=700&fit=cover&q=90` : '';
 
 const characterAvatarDataUri = (character: string) => {
   const initials = character.slice(0, 2).toUpperCase();
@@ -167,9 +168,10 @@ const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
   const original = img.dataset.originalSrc || img.src;
   const stage = Number(img.dataset.imageStage || '0');
   if (!img.dataset.originalSrc) img.dataset.originalSrc = img.src;
-  if (stage === 0) { img.dataset.imageStage = '1'; img.src = proxiedImage(original); return; }
-  if (stage === 1) { img.dataset.imageStage = '2'; img.src = original; return; }
-  if (img.dataset.characterKey) { img.dataset.imageStage = '3'; img.src = img.dataset.characterFallback || characterAvatarDataUri(img.dataset.characterKey); img.style.opacity = '1'; return; }
+  if (stage === 0) { img.dataset.imageStage = '1'; img.src = characterProxy(original); return; }
+  if (stage === 1) { img.dataset.imageStage = '2'; img.src = proxiedImage(original); return; }
+  if (stage === 2) { img.dataset.imageStage = '3'; img.src = original; return; }
+  if (img.dataset.characterKey) { img.dataset.imageStage = '4'; img.src = img.dataset.characterFallback || characterAvatarDataUri(img.dataset.characterKey); img.style.opacity = '1'; return; }
   img.style.opacity = '0';
 };
 
@@ -925,7 +927,7 @@ export default function App() {
             <div className="themeGrid">{animeThemes.map(([theme,name,desc]) => <button key={theme} className={active.animeTheme === theme ? 'themeActive' : ''} onClick={() => changeAnimeTheme(theme)}><div className="themeBanner"><img src={proxiedImage(themeBanners[theme])} alt={name} referrerPolicy="no-referrer" data-original-src={themeBanners[theme]} onError={handleImageError} /></div><div className="themeCardBody"><img className="themeLogo" src={themeAssets[theme]?.logo} alt={themeAssets[theme]?.alt || name} onError={e => { e.currentTarget.style.visibility = 'hidden'; }} /><span><b>{name}</b><small>{desc}</small></span></div></button>)}</div>
             <h3>🧑‍🎤 Personaje</h3>
             <p>Elige el personaje que representará este perfil. Puedes cambiarlo cuando quieras.</p>
-            <div className="characterGrid">{(animeCharacters[active.animeTheme] || []).map(([characterId, name]) => <button key={characterId} className={active.animeCharacter === characterId ? 'characterActive' : ''} onClick={() => changeAnimeCharacter(characterId)}><span className="characterBadge"><img src={proxiedImage(characterImages[characterId] || themeCharacterImages[active.animeTheme])} alt="" referrerPolicy="no-referrer" data-original-src={characterImages[characterId] || themeCharacterImages[active.animeTheme]} data-character-key={characterId} data-character-fallback={characterAvatarDataUri(characterId)} onError={handleImageError} /><span>{name.split(' ').map(part => part[0]).join('').slice(0, 2)}</span></span><b>{name}</b></button>)}</div>
+            <div className="characterGrid">{(animeCharacters[active.animeTheme] || []).map(([characterId, name]) => <button key={characterId} className={active.animeCharacter === characterId ? 'characterActive' : ''} onClick={() => changeAnimeCharacter(characterId)}><span className="characterBadge"><img src={proxiedImage(characterImages[characterId] || themeCharacterImages[active.animeTheme])} alt="" referrerPolicy="no-referrer" data-original-src={characterImages[characterId] || themeCharacterImages[active.animeTheme]} data-character-key={characterId} data-image-stage="0" data-character-fallback={characterAvatarDataUri(characterId)} onError={handleImageError} /><span>{name.split(' ').map(part => part[0]).join('').slice(0, 2)}</span></span><b>{name}</b></button>)}</div>
             <div className="selectedCharacter"><img className="selectedThemeLogo" src={themeAssets[active.animeTheme]?.logo} alt={themeAssets[active.animeTheme]?.alt || 'Logo anime'} /><span>Personaje activo: <b>{animeCharacterName(active.animeTheme, active.animeCharacter)}</b><small>{themeAssets[active.animeTheme]?.credit}</small></span></div>
             <h3>🏆 Temporada</h3>
             {active.seasonStartedAt ? <div className="seasonBox"><b>Temporada {seasonNumber(active.seasonStartedAt)}</b><span>Iniciada el {new Date(active.seasonStartedAt + 'T12:00:00').toLocaleDateString('es-CL')}</span><small>{Math.round(seasonProgress(active.seasonStartedAt))}% del ciclo actual</small></div> : <div className="seasonBox"><b>Aún no iniciada</b><span>La temporada comenzará cuando marques tu primer hito.</span><button className="primary" onClick={markFirstMilestone}>🏆 Marcar primer hito</button></div>}
