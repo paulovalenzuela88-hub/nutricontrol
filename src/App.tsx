@@ -173,28 +173,64 @@ const proxiedImage = (url: string) => url ? `https://wsrv.nl/?url=${encodeURICom
 const characterProxy = (url: string) => url ? `https://images.weserv.nl/?url=${encodeURIComponent(url)}&w=700&fit=cover&q=92` : '';
 const characterDisplayImage = (url: string) => url ? characterProxy(url) : '';
 
-const characterAvatarDataUri = (character: string) => {
-  const palettes = [
-    ['#182235', '#67d6ff', '#f1c7a8'], ['#27182b', '#ff5d8f', '#f0c4a5'],
-    ['#17261d', '#6ee7b7', '#e7bc9e'], ['#2a2017', '#ffbd59', '#edc19e'],
-    ['#1d1b31', '#a78bfa', '#efc4a8'], ['#241717', '#ff6b6b', '#efc3a4'],
-    ['#16242a', '#56cfe1', '#eac1a3'], ['#241f18', '#f59e0b', '#efc3a4'],
-  ];
-  let hash = 0;
-  for (let i = 0; i < character.length; i++) hash = (hash * 31 + character.charCodeAt(i)) >>> 0;
-  const [bg, hair, skin] = palettes[hash % palettes.length];
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320">
-    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${bg}"/><stop offset="1" stop-color="#0b1020"/></linearGradient></defs>
-    <rect width="320" height="320" rx="160" fill="url(#g)"/>
-    <circle cx="160" cy="132" r="72" fill="${skin}"/>
-    <path d="M82 125 Q92 48 160 58 Q228 48 238 125 L218 105 L205 124 L188 91 L170 119 L149 88 L128 119 L106 96 Z" fill="${hair}"/>
-    <ellipse cx="133" cy="139" rx="9" ry="13" fill="#172033"/><ellipse cx="187" cy="139" rx="9" ry="13" fill="#172033"/>
-    <circle cx="135" cy="136" r="3" fill="#fff"/><circle cx="189" cy="136" r="3" fill="#fff"/>
-    <path d="M145 174 Q160 184 175 174" fill="none" stroke="#7d4251" stroke-width="5" stroke-linecap="round"/>
-    <path d="M72 286 Q84 220 160 214 Q236 220 248 286 Z" fill="${hair}"/>
-    <path d="M112 222 Q160 248 208 222 L218 286 L102 286 Z" fill="#101827"/>
-  </svg>`;
-  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+const characterImageCacheKey = 'nutricontrol-character-images-v1';
+
+const readCharacterImageCache = (): Record<string, string> => {
+  try {
+    return JSON.parse(localStorage.getItem(characterImageCacheKey) || '{}');
+  } catch {
+    return {};
+  }
+};
+
+const characterImageCache: Record<string, string> = readCharacterImageCache();
+const characterImagePromises: Record<string, Promise<string>> = {};
+let characterRequestQueue: Promise<void> = Promise.resolve();
+
+const wait = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
+
+const persistCharacterImage = (characterId: string, imageUrl: string) => {
+  characterImageCache[characterId] = imageUrl;
+  try {
+    localStorage.setItem(characterImageCacheKey, JSON.stringify(characterImageCache));
+  } catch {
+    // El caché es opcional.
+  }
+};
+
+const fetchRealCharacterImage = (characterId: string, name: string): Promise<string> => {
+  const cached = characterImageCache[characterId];
+  if (cached) return Promise.resolve(cached);
+  if (characterImagePromises[characterId]) return characterImagePromises[characterId];
+
+  const task = characterRequestQueue.then(async () => {
+    const existing = characterImageCache[characterId];
+    if (existing) return existing;
+
+    const query = encodeURIComponent(name);
+    const response = await fetch(`https://api.jikan.moe/v4/characters?q=${query}&limit=5`);
+    if (!response.ok) throw new Error(`Jikan character lookup failed: ${response.status}`);
+
+    const data = await response.json();
+    const results = Array.isArray(data?.data) ? data.data : [];
+    const normalized = name.trim().toLowerCase();
+    const exact = results.find((item: any) => String(item?.name || '').trim().toLowerCase() === normalized);
+    const character = exact || results[0];
+    const imageUrl =
+      character?.images?.webp?.image_url ||
+      character?.images?.jpg?.image_url ||
+      character?.images?.webp?.large_image_url ||
+      character?.images?.jpg?.large_image_url;
+
+    if (!imageUrl) throw new Error('No real character image returned by Jikan');
+    persistCharacterImage(characterId, imageUrl);
+    return imageUrl;
+  }).finally(() => {
+    characterRequestQueue = wait(1100);
+  });
+
+  characterImagePromises[characterId] = task;
+  return task;
 };
 
 const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
@@ -205,7 +241,6 @@ const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
   if (stage === 0) { img.dataset.imageStage = '1'; img.src = characterProxy(original); return; }
   if (stage === 1) { img.dataset.imageStage = '2'; img.src = proxiedImage(original); return; }
   if (stage === 2) { img.dataset.imageStage = '3'; img.src = original; return; }
-  if (img.dataset.characterKey) { img.dataset.imageStage = '4'; img.src = img.dataset.characterFallback || characterAvatarDataUri(img.dataset.characterKey); img.style.opacity = '1'; return; }
   img.style.opacity = '0';
 };
 
@@ -275,43 +310,29 @@ const characterImages: Record<string, string> = {
 const jikanCharacterCache: Record<string, string> = {};
 
 function CharacterAvatar({ characterId, name, className = '' }: { characterId: string; name: string; className?: string }) {
-  const [src, setSrc] = useState<string>(() => jikanCharacterCache[characterId] || characterDisplayImage(characterImages[characterId] || ''));
-  const [failed, setFailed] = useState(false);
+  const staticImage = characterDisplayImage(characterImages[characterId] || '');
+  const [src, setSrc] = useState<string>(() => characterImageCache[characterId] || staticImage);
 
   useEffect(() => {
     let cancelled = false;
-    const cached = jikanCharacterCache[characterId];
-    if (cached) { setSrc(cached); return () => { cancelled = true; }; }
-
-    const query = encodeURIComponent(name);
-    fetch(`https://api.jikan.moe/v4/characters?q=${query}&limit=1`)
-      .then(r => r.ok ? r.json() : Promise.reject(new Error('character lookup failed')))
-      .then(data => {
-        const imageUrl = data?.data?.[0]?.images?.webp?.small_image_url
-          || data?.data?.[0]?.images?.jpg?.small_image_url
-          || data?.data?.[0]?.images?.webp?.image_url
-          || data?.data?.[0]?.images?.jpg?.image_url;
-        if (!cancelled && imageUrl) {
-          jikanCharacterCache[characterId] = imageUrl;
-          setSrc(imageUrl);
-          setFailed(false);
-        }
+    fetchRealCharacterImage(characterId, name)
+      .then(imageUrl => {
+        if (!cancelled && imageUrl) setSrc(imageUrl);
       })
-      .catch(() => { /* keep the local/remote fallback */ });
-
+      .catch(() => {
+        // Sin ilustraciones inventadas: conservamos solo una imagen real ya configurada.
+      });
     return () => { cancelled = true; };
-  }, [characterId, name]);
+  }, [characterId, name, staticImage]);
 
   return <img
     className={className}
-    src={src || characterAvatarDataUri(characterId)}
+    src={src}
     alt={name}
     referrerPolicy="no-referrer"
     onError={() => {
-      if (!failed) {
-        setFailed(true);
-        setSrc(characterAvatarDataUri(characterId));
-      }
+      if (src && src !== staticImage && staticImage) setSrc(staticImage);
+      else setSrc('');
     }}
   />;
 }
