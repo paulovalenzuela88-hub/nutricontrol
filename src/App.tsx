@@ -332,12 +332,12 @@ function CharacterAvatar({ characterId, name, className = '' }: { characterId: s
     </span>;
   }
 
-  // The source sprite is a fixed 8x5 grid (1536x1024).
-  // Using an SVG viewport avoids CSS background/image scaling conflicts.
+  // The source sprite is a fixed 8x5 grid (768x480).
+  // Each avatar occupies an exact 96x96 square.
   const col = index % 8;
   const row = Math.floor(index / 8);
-  const cellWidth = 1536 / 8;
-  const cellHeight = 1024 / 5;
+  const cellWidth = 768 / 8;
+  const cellHeight = 480 / 5;
   const x = col * cellWidth;
   const y = row * cellHeight;
 
@@ -345,7 +345,7 @@ function CharacterAvatar({ characterId, name, className = '' }: { characterId: s
     viewBox={`${x} ${y} ${cellWidth} ${cellHeight}`}
     preserveAspectRatio="xMidYMid slice"
     style={{ display:'block', width:'100%', height:'100%', background:'#151b27', overflow:'hidden' }}>
-    <image href={avatarSpriteUrl} x="0" y="0" width="1536" height="1024"
+    <image href={avatarSpriteUrl} x="0" y="0" width="768" height="480"
       preserveAspectRatio="none" aria-hidden="true" />
   </svg>;
 }
