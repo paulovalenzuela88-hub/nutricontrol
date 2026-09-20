@@ -247,8 +247,7 @@ const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
 
 const themeCharacterImages: Record<string, string> = {
   attackontitan: 'https://attackontitan.fandom.com/wiki/Special:FilePath/Eren%20profile%20image.png',
-  myhero: 'https://myheroacademia.fandom.com/wiki/Special:FilePath/Izuku%20Midoriya%20First%20Hero%20Costume%20Full%20Body%20Anime.png',
-  chainsaw: 'https://images8.alphacoders.com/115/thumb-1920-1159925.jpg',
+  myhero: 'https://myheroacademia.fandom.com/wiki/Special:FilePath/Izuku%20Midoriya%20First%20Hero%20Costume%20Full%20Body%20Anime.png',  chainsaw: 'https://images8.alphacoders.com/115/thumb-1920-1159925.jpg',
   sololeveling: 'https://images2.alphacoders.com/139/thumb-1920-1394671.png',
   demonslayer: 'https://kimetsu-no-yaiba.fandom.com/wiki/Special:FilePath/Tanjiro%20colored%20profile.png',
   jujutsu: 'https://jujutsu-kaisen.fandom.com/wiki/Special:FilePath/Satoru%20Gojo%20%28Anime%29.png',
@@ -404,7 +403,13 @@ const exerciseTypes = [
   ['Otro', 5],
 ] as const;
 
-const localDateKey = (d = new Date()) => {\n  const y = d.getFullYear();\n  const m = String(d.getMonth() + 1).padStart(2, '0');\n  const day = String(d.getDate()).padStart(2, '0');\n  return `${y}-${m}-${day}`;\n};\nconst today = () => localDateKey();
+const localDateKey = (d = new Date()) => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+};
+const today = () => localDateKey();
 const id = () => Math.random().toString(36).slice(2, 10);
 
 const emptyMicros = (): Micros => ({
@@ -497,8 +502,7 @@ function calculateTargets(age: number, sex: 'hombre' | 'mujer', weight: number, 
   const bmr = sex === 'hombre'
     ? 10 * weight + 6.25 * height - 5 * age + 5
     : 10 * weight + 6.25 * height - 5 * age - 161;
-  const activityFactor = { sedentario: 1.2, ligero: 1.35, moderado: 1.55, alto: 1.725 }[activity];
-  const tdee = bmr * activityFactor;
+  const activityFactor = { sedentario: 1.2, ligero: 1.35, moderado: 1.55, alto: 1.725 }[activity];  const tdee = bmr * activityFactor;
   const deficitByActivity = { sedentario: 500, ligero: 600, moderado: 700, alto: 800 }[activity];
   const calories = Math.round(
     goal === 'perder'
@@ -747,8 +751,7 @@ export default function App() {
     openSetup(true);
   }
 
-  function switchProfile(profileId: string) {
-    const next = structuredClone(state);
+  function switchProfile(profileId: string) {    const next = structuredClone(state);
     next.activeProfileId = profileId;
     commit(next);    setDate(today());
   }
@@ -998,114 +1001,3 @@ export default function App() {
               <div className="macrogrid">
                 <div>🥩<b>{Math.round(totals.p)} / {targets.p} g</b><small>Proteína</small></div>
                 <div>🍚<b>{Math.round(totals.c)} / {targets.c} g</b><small>Carbohidratos</small></div>
-                <div>🥑<b>{Math.round(totals.f)} / {targets.f} g</b><small>Grasas</small></div>
-              </div>
-            </section>
-
-            <section className="card microCard">
-              <div className="sectionTitle"><h2>Micronutrientes</h2><span>meta diaria orientativa</span></div>
-              <div className="microgrid">
-                {microLabels.map(([k, label, unit]) => {
-                  const value = dailyMicros[k];
-                  const target = targets.micros[k];
-                  const pct = k === 'sodium' || k === 'sugar' ? Math.min(100, (value / target) * 100) : Math.min(100, (value / target) * 100);
-                  return <div className="microItem" key={k}><div><b>{label}</b><small>{Math.round(value * 10) / 10} / {target} {unit}</small></div><div className="bar"><i style={{ width: pct + '%' }} /></div></div>;
-                })}
-              </div>
-            </section>
-
-            <section className="card exerciseCard">
-              <div className="sectionTitle"><h2>Ejercicio</h2><button onClick={() => setExerciseOpen(true)}>＋ Registrar ejercicio</button></div>
-              {day.exercises.length ? day.exercises.map(e => <div className="exerciseRow" key={e.id}><div><b>🏋️ {e.type}</b><small>{e.duration} min · ~{e.kcal} kcal</small>{e.image && <img className="attachmentThumb" src={e.image} alt="Registro del entrenamiento" />}</div><button className="iconDanger" onClick={() => deleteExercise(e.id)}>🗑️</button></div>) : <p className="muted">Sin ejercicio registrado hoy.</p>}
-              {day.exercises.length > 0 && <div className="exerciseTotal">Total ejercicio: <b>{exerciseTotal} kcal</b></div>}
-              <p className="attachmentHint">Puedes adjuntar una foto o pantallazo del entrenamiento del reloj/app.</p>
-            </section>
-
-            <section className="card supplementCard">
-              <div className="sectionTitle"><h2>💊 Suplementos y vitaminas</h2><button onClick={() => { setSupplementOpen(true); setSupplementPhoto(null); setSupplementResult(null); setSupplementError(''); }}>＋ Añadir suplemento</button></div>
-              {day.supplements.length ? day.supplements.map(s => <div className="supplementRow" key={s.id}><div><b>💊 {s.name}</b><small>{s.brand || ''}{s.serving ? ` · ${s.serving}` : ''}</small><small>{microLabels.filter(([k]) => Number(s.micros?.[k] || 0) > 0).slice(0,4).map(([k,label,unit]) => `${label} ${s.micros?.[k]} ${unit}`).join(' · ')}</small>{s.image && <img className="attachmentThumb" src={s.image} alt="Etiqueta del suplemento" />}</div><button className="iconDanger" onClick={() => deleteSupplement(s.id)}>🗑️</button></div>) : <p className="muted">Sin suplementos registrados hoy.</p>}
-              {day.supplements.length > 0 && <div className="exerciseTotal">Los micronutrientes de los suplementos se suman al balance diario.</div>}
-            </section>
-
-            <div className="sectionTitle"><h2>Comidas</h2><span>{Math.round(totals.kcal)} / {targets.calories} kcal</span></div>
-            <section className="meals">
-              {meals.map(m => <div className="meal card" key={m}><div className="mealContent"><h3>{m}</h3>{day.meals[m].length ? <div className="foodList">{day.meals[m].map((f, i) => <div className="foodItem" key={i}><div><b>{f.name}</b><small>{Math.round(f.kcal)} kcal · P {Math.round(f.p)} g · C {Math.round(f.c)} g · G {Math.round(f.f)} g</small></div><button className="iconDanger" onClick={() => deleteFood(m, i)} title="Eliminar alimento">🗑️</button></div>)}</div> : <p>Sin registrar</p>}</div><button onClick={() => { setModal(m); setMealSelection(m); setAiFoods([]); setAiSelected([]); setAiError(''); setPhoto(null); }}>＋ Añadir</button></div>)}
-            </section>
-          </>
-        )}
-
-        {tab === 'semana' && <section className="card"><h2>Últimos 7 días</h2>{week.map(w => <div className="week" key={w.k}><span>{new Date(w.k + 'T12:00').toLocaleDateString('es-CL', { weekday: 'short', day: '2-digit' })}</span><div className="bar"><i style={{ width: Math.min(100, (w.t / targets.calories) * 100) + '%' }} /></div><b>{Math.round(w.t)} kcal</b></div>)}</section>}
-
-        {tab === 'perfil' && (
-          <section className="card profilePage">
-            <h2>Perfil y configuración</h2>
-            <div className="profileSummary"><b>{active.name}</b><span>{active.age} años · {active.height} cm · {active.weight} kg</span><span>Objetivo: {active.goal === 'perder' ? 'Perder grasa/peso' : active.goal === 'ganar' ? 'Ganar masa muscular' : 'Mantener peso'}</span></div>
-            <div className="settingsGrid">
-              <div><span>Objetivo diario</span><b>{targets.calories} kcal</b></div><div><span>Proteína</span><b>{targets.p} g</b></div><div><span>Carbohidratos</span><b>{targets.c} g</b></div><div><span>Grasas</span><b>{targets.f} g</b></div>
-            </div>
-            <div className="profileActions"><button onClick={() => openSetup(false)}>⚙️ Editar perfil y objetivos</button><button onClick={editWeight}>⚖️ {day.weight ? 'Editar peso' : 'Registrar peso'}</button>{day.weight > 0 && <button className="dangerOutline" onClick={() => updateDay(d => { d.weight = 0; })}>Quitar peso del día</button>}</div>
-            <h3>🎨 Tema anime del perfil</h3>
-            <p>Elige un anime real para personalizar la ambientación de este perfil. Los gráficos son originales y no usan material oficial del anime.</p>
-            <div className="themeGrid">{animeThemes.map(([theme,name,desc]) => <button key={theme} className={active.animeTheme === theme ? 'themeActive' : ''} onClick={() => changeAnimeTheme(theme)}><div className="themeBanner"><img src={proxiedImage(themeBanners[theme])} alt={name} referrerPolicy="no-referrer" data-original-src={themeBanners[theme]} onError={handleImageError} /><div className="themeBannerShade" /><div className="themeBannerText"><b>{name}</b><small>{desc}</small><em>NUTRICONTROL · RPG SEASON</em></div></div></button>)}</div>
-            <h3>🧑‍🎤 Personaje</h3>
-            <p>Elige el personaje que representará este perfil. Puedes cambiarlo cuando quieras.</p>
-            <div className="characterGrid">{(animeCharacters[active.animeTheme] || []).map(([characterId, name]) => <button key={characterId} className={active.animeCharacter === characterId ? 'characterActive' : ''} onClick={() => changeAnimeCharacter(characterId)}><span className="characterBadge"><CharacterAvatar characterId={characterId} name={name} /></span><b>{name}</b></button>)}</div>
-            <div className="selectedCharacter"><img className="selectedThemeLogo" src={themeAssets[active.animeTheme]?.logo} alt={themeAssets[active.animeTheme]?.alt || 'Logo anime'} /><span>Personaje activo: <b>{animeCharacterName(active.animeTheme, active.animeCharacter)}</b><small>{themeAssets[active.animeTheme]?.credit}</small></span></div>
-            <h3>🏆 Temporada</h3>
-            {active.seasonStartedAt ? <div className="seasonBox"><b>Temporada {seasonNumber(active.seasonStartedAt)}</b><span>Iniciada el {new Date(active.seasonStartedAt + 'T12:00:00').toLocaleDateString('es-CL')}</span><small>{Math.round(seasonProgress(active.seasonStartedAt))}% del ciclo actual</small></div> : <div className="seasonBox"><b>Aún no iniciada</b><span>La temporada comenzará cuando marques tu primer hito.</span><button className="primary" onClick={markFirstMilestone}>🏆 Marcar primer hito</button></div>}
-            <h3>Perfiles familiares</h3>
-            <div className="familyList">{state.profiles.map(p => <div className="familyItem" key={p.id}><div><b>👤 {p.name}</b><small>{p.setupComplete ? `${p.age} años · ${p.weight} kg · ${p.height} cm` : 'Falta completar configuración'}</small></div><div><button onClick={() => switchProfile(p.id)}>Abrir</button>{state.profiles.length > 1 && <button className="dangerOutline" onClick={() => removeProfile(p.id)}>Eliminar</button>}</div></div>)}</div>
-            <button onClick={addProfile}>＋ Agregar perfil familiar</button>
-            <hr />
-            <h3>Gestión de datos</h3>
-            <div className="resetBox"><button className="dangerOutline" onClick={resetDay}>🗑️ Borrar datos del día</button><button className="danger" onClick={resetAll}>⚠️ Restablecer NutriControl completo</button></div>
-            <p className="warning">Los perfiles y registros se guardan localmente en este dispositivo. Las metas son estimaciones orientativas y no sustituyen una evaluación profesional.</p>
-          </section>
-        )}
-
-            {tab === 'hoy' && <section className="seasonProgressCard">
-              <div className="seasonProgressHeader"><div><b>Tu progreso · Temporada {active?.seasonStartedAt ? seasonNumber(active.seasonStartedAt) : 1}</b><small>{active?.seasonStartedAt ? `Día ${seasonDays} de 90` : 'La temporada empieza con tu primer hito'}</small></div><span>{seasonPct}%</span></div>
-              <div className="seasonTimeline">{Array.from({ length: 12 }, (_, i) => { const reached = seasonPct >= ((i + 1) * 100 / 12); return <div key={i} className={reached ? 'timelineStep reached' : 'timelineStep'}><i>{i === 0 && active?.seasonStartedAt ? '＋' : reached ? '✓' : ''}</i><small>{i === 0 ? 'Inicio' : i === 11 ? 'Gran Hito' : `Semana ${i + 1}`}</small></div>; })}</div>
-              <div className="seasonProgressFooter"><span>🔥 Sigue construyendo tu racha.</span><button onClick={() => setTab('semana')}>Ver detalles de la temporada <b>›</b></button></div>
-            </section>}
-          </div>
-
-          <aside className="rightRail">
-            <div className="railDate"><span>🔔</span><b>{new Date(date + 'T12:00:00').toLocaleDateString('es-CL', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}</b></div>
-            <section className="profileRail">
-              <div className="profileRailImage"><CharacterAvatar characterId={active?.animeCharacter || defaultAnimeCharacter(active?.animeTheme || 'hajime')} name={currentCharacterName} /><button onClick={() => setTab('perfil')} aria-label="Editar personaje">✎</button></div>
-              <h3>{currentCharacterName}</h3><p>Miembro desde {active?.seasonStartedAt ? new Date(active.seasonStartedAt + 'T12:00:00').toLocaleDateString('es-CL') : 'hoy'}</p>
-              <div className="railSeason"><b>TEMPORADA {active?.seasonStartedAt ? seasonNumber(active.seasonStartedAt) : 1}</b><span>Día {active?.seasonStartedAt ? seasonDays : 1} de 90</span></div>
-              <div className="railBar"><i style={{ width: seasonPct + '%' }} /></div>
-              <div className="railLevel"><b>NIVEL {level}</b><span>{levelXp} / 1.000 XP</span></div>
-              <blockquote>“{characterMessage.split('. ')[0]}.”<small>✦ — {currentCharacterName}</small></blockquote>
-            </section>
-            <section className="railMissions"><h3>🎯 Misiones de hoy</h3>{missionItems.map(([icon,label,done]) => <div key={label} className={done ? 'mission done' : 'mission'}><span>{done ? '✓' : '□'}</span>{icon}<b>{label}</b></div>)}</section>
-            <section className="railQuote"><CharacterAvatar characterId={active?.animeCharacter || defaultAnimeCharacter(active?.animeTheme || 'hajime')} name={currentCharacterName} /><b>LOS LÍMITES<br />SOLO EXISTEN<br />EN LA MENTE.</b></section>
-          </aside>
-        </div>
-      </main>
-
-      {modal && <div className="overlay"><div className="modal"><button className="close" onClick={() => setModal(null)}>×</button><h2>📸 Registrar comida</h2><label className="formField"><span>¿Qué comida estás registrando?</span><select value={mealSelection} onChange={e => setMealSelection(e.target.value)}>{meals.map(m => <option key={m} value={m}>{m}</option>)}</select></label><div className="drop"><div className="photoPickerActions"><label className="primary photoPickerButton">📷 Tomar foto<input type="file" accept="image/*" capture="environment" onChange={e => setPhoto(e.target.files?.[0] || null)} /></label><label className="photoPickerButton">🖼️ Elegir de galería<input type="file" accept="image/*" onChange={e => setPhoto(e.target.files?.[0] || null)} /></label></div>{photo && <p>{photo.name}</p>}<button className="primary" disabled={!photo || aiBusy} onClick={analyze}>{aiBusy ? 'Analizando…' : '✨ Analizar con IA'}</button></div>{aiError && <div className="error">{aiError}</div>}{aiFoods.length > 0 && <><div className="aiHeader"><h3>Resultado de IA</h3><div className="aiBulkActions"><button onClick={addSelectedAiFoods} disabled={!aiSelected.length}>Añadir seleccionados ({aiSelected.length})</button><button className="primary" onClick={addAllAiFoods}>Añadir todos ({aiFoods.length})</button></div></div><p className="aiHint">Puedes añadir uno, seleccionar varios o incorporar todos los alimentos detectados de una vez.</p>{aiFoods.map((f, i) => { const selected = aiSelected.includes(i); return <div className={'airow' + (selected ? ' selected' : '')} key={i}><label className="aiSelect"><input type="checkbox" checked={selected} onChange={() => toggleAiFood(i)} /></label><div><b>{f.name}</b><small>{Math.round(f.grams)} g · confianza {Math.round((f.confidence || 0) * 100)}%</small></div><strong>{Math.round(f.kcal)} kcal</strong><button onClick={() => addFood(mealSelection, f)}>Añadir</button></div>; })}</>}<div className="manual"><p>También puedes registrar alimentos manualmente.</p><button onClick={() => { const n = prompt('Alimento'); const k = Number(prompt('Calorías') || 0); const p = Number(prompt('Proteína (g)') || 0); const c = Number(prompt('Carbohidratos (g)') || 0); const f = Number(prompt('Grasas (g)') || 0); if (n && k > 0) addFood(mealSelection, { name: n, grams: 0, kcal: k, p, c, f }); }}>Entrada manual</button></div></div></div>}
-
-      {exerciseOpen && <div className="overlay"><div className="modal smallModal"><button className="close" onClick={() => setExerciseOpen(false)}>×</button><h2>🏃 Registrar ejercicio</h2><label className="formField"><span>Actividad</span><select value={exerciseType} onChange={e => setExerciseType(e.target.value)}>{exerciseTypes.map(([name]) => <option key={name}>{name}</option>)}</select></label><label className="formField"><span>Duración (minutos)</span><input type="number" min="1" max="600" value={exerciseDuration} onChange={e => setExerciseDuration(Number(e.target.value))} /></label><label className="formField"><span>Intensidad</span><select value={exerciseIntensity} onChange={e => setExerciseIntensity(e.target.value as any)}><option value="suave">Suave</option><option value="moderada">Moderada</option><option value="alta">Alta</option></select></label><label className="formField"><span>Foto o pantallazo del entrenamiento (opcional)</span><input type="file" accept="image/*" capture="environment" onChange={e => setExercisePhoto(e.target.files?.[0] || null)} /></label><p className="muted">Calorías estimadas según peso, duración, actividad e intensidad. La imagen queda asociada al registro.</p><button className="primary fullButton" onClick={addExercise}>＋ Guardar ejercicio</button></div></div>}
-
-      {supplementOpen && <div className="overlay"><div className="modal smallModal"><button className="close" onClick={() => setSupplementOpen(false)}>×</button><h2>💊 Añadir suplemento o vitamina</h2><div className="drop"><label>📷 Foto o pantallazo de la etiqueta<input type="file" accept="image/*" capture="environment" onChange={e => { setSupplementPhoto(e.target.files?.[0] || null); setSupplementResult(null); }} /></label>{supplementPhoto && <p>{supplementPhoto.name}</p>}<button className="primary" disabled={!supplementPhoto || supplementBusy} onClick={analyzeSupplement}>{supplementBusy ? 'Analizando etiqueta…' : '✨ Analizar suplemento con IA'}</button></div>{supplementError && <div className="error">{supplementError}</div>}{supplementResult && <div className="supplementResult"><h3>{supplementResult.name}</h3><p>{supplementResult.brand || ''}{supplementResult.serving ? ` · ${supplementResult.serving}` : ''}</p><div className="microgrid">{microLabels.filter(([k]) => Number(supplementResult.micros?.[k] || 0) > 0).map(([k,label,unit]) => <div className="microItem" key={k}><b>{label}</b><small>{supplementResult.micros?.[k]} {unit}</small></div>)}</div><button className="primary fullButton" onClick={addSupplement}>＋ Añadir y sumar al día</button></div>}</div></div>}
-
-
-      {(setupOpen || incomplete) && <SetupModal profile={active} onClose={() => active?.setupComplete && setSetupOpen(false)} onSave={finishSetup} isNew={setupNewProfile} />}
-    </div>
-  );
-}
-
-function SetupModal({ profile, onClose, onSave, isNew }: { profile?: UserProfile; onClose: () => void; onSave: (form: { name: string; age: number; sex: 'hombre' | 'mujer'; height: number; weight: number; goal: UserProfile['goal']; activity: UserProfile['activity'] }) => void; isNew: boolean }) {
-  const [name, setName] = useState(profile?.setupComplete ? profile.name : profile?.name === 'Yo' ? '' : profile?.name || '');
-  const [age, setAge] = useState(profile?.age || 30);
-  const [sex, setSex] = useState<'hombre' | 'mujer'>(profile?.sex || 'hombre');
-  const [height, setHeight] = useState(profile?.height || 170);
-  const [weight, setWeight] = useState(profile?.weight || 70);
-  const [goal, setGoal] = useState<UserProfile['goal']>(profile?.goal || 'perder');
-  const [activity, setActivity] = useState<UserProfile['activity']>(profile?.activity || 'moderado');
-
-  return <div className="overlay"><div className="modal setupModal"><h2>{isNew ? '👨‍👩‍👧 Nuevo perfil familiar' : '👋 Configura tu perfil'}</h2><p className="muted">Con tu edad, sexo, peso, altura, actividad y objetivo calcularemos metas personalizadas de calorías, macros y micronutrientes.</p><div className="formGrid"><label className="formField"><span>Nombre</span><input value={name} onChange={e => setName(e.target.value)} placeholder="Ej. Paulo" /></label><label className="formField"><span>Edad</span><input type="number" min="16" max="100" value={age} onChange={e => setAge(Number(e.target.value))} /></label><label className="formField"><span>Sexo</span><select value={sex} onChange={e => setSex(e.target.value as 'hombre' | 'mujer')}><option value="hombre">Hombre</option><option value="mujer">Mujer</option></select></label><label className="formField"><span>Altura (cm)</span><input type="number" min="120" max="230" value={height} onChange={e => setHeight(Number(e.target.value))} /></label><label className="formField"><span>Peso (kg)</span><input type="number" min="30" max="300" step="0.1" value={weight} onChange={e => setWeight(Number(e.target.value))} /></label><label className="formField"><span>Actividad habitual</span><select value={activity} onChange={e => setActivity(e.target.value as UserProfile['activity'])}><option value="sedentario">Sedentario</option><option value="ligero">Ligero</option><option value="moderado">Moderado</option><option value="alto">Alto</option></select></label></div><div className="goalGrid"><button className={goal === 'perder' ? 'goalActive' : ''} onClick={() => setGoal('perder')}>🔥 Perder peso/grasa</button><button className={goal === 'mantener' ? 'goalActive' : ''} onClick={() => setGoal('mantener')}>⚖️ Mantener</button><button className={goal === 'ganar' ? 'goalActive' : ''} onClick={() => setGoal('ganar')}>💪 Ganar masa muscular</button></div><div className="setupActions"><button onClick={onClose} disabled={!profile?.setupComplete}>Cancelar</button><button className="primary" disabled={!name.trim() || age < 16 || height < 120 || weight < 30} onClick={() => onSave({ name: name.trim(), age, sex, height, weight, goal, activity })}>✨ Calcular mis metas</button></div></div></div>;
-}
