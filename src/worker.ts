@@ -5,6 +5,7 @@ interface Env {
 
 const PRIMARY_MODEL = '@cf/google/gemma-4-26b-a4b-it';
 const FALLBACK_MODEL = '@cf/meta/llama-4-scout-17b-16e-instruct';
+const SECONDARY_FALLBACK_MODEL = '@cf/meta/llama-3.2-11b-vision-instruct';
 
 const corsHeaders = {
   'Content-Type': 'application/json; charset=utf-8',
@@ -47,7 +48,7 @@ const microsSchema = {
   additionalProperties: false,
 };
 
-async function runVision(env: Env, image: string, prompt: string, schema: any, expectedKey?: 'foods' | 'supplement') {
+async function runVision(env: Env, image: string, prompt: string, schema: any, expectedKey?: 'foods' | 'supplement', imageHash?: string) {
   const dataUri = image.startsWith('data:') ? image : `data:image/jpeg;base64,${image}`;
   let lastError: unknown;
 
@@ -75,7 +76,7 @@ async function runVision(env: Env, image: string, prompt: string, schema: any, e
           },
           {
             role: 'user',
-            content: `${prompt}\n\n${pass}`,
+            content: `${prompt}\n\n${pass}\n\nEsta es una imagen nueva e independiente. No uses ningún resultado de análisis anterior. Identificador de imagen: ${imageHash || 'sin-hash'}.`,
           },
         ],
         image: dataUri,
@@ -116,11 +117,27 @@ async function runVision(env: Env, image: string, prompt: string, schema: any, e
     lastError = error;
   }
 
+  try {
+    const result = await (env.AI as any).run(SECONDARY_FALLBACK_MODEL, {
+      messages: [
+        { role: 'system', content: 'Eres el último analista visual de NutriControl. Mira físicamente la imagen recibida y describe únicamente lo que aparece en ELLA. No uses memoria ni supongas que es la misma foto de una solicitud anterior. Enumera cada alimento visible por separado.' },
+        { role: 'user', content: prompt + '\n\nIMPORTANTE: esta fotografía es nueva. Ignora cualquier análisis previo y vuelve a mirar la imagen completa. Identificador: ' + (imageHash || 'sin-hash') + '.' },
+      ],
+      image: dataUri,
+      temperature: 0.05,
+      max_tokens: 2600,
+    });
+    const parsed = parseJson(getModelPayload(result));
+    if (isUsable(parsed)) return parsed;
+  } catch (error) {
+    lastError = error;
+  }
+
   throw (lastError || new Error('No fue posible analizar la fotografía.'));
 }
 
 async function handleAnalyzeFood(request: Request, env: Env) {
-  const body = await request.json() as { image?: string };
+  const body = await request.json() as { image?: string; imageHash?: string };
   if (!body.image || typeof body.image !== 'string') {
     return json({ error: 'No se recibió la imagen.' }, 400);
   }
@@ -157,7 +174,8 @@ async function handleAnalyzeFood(request: Request, env: Env) {
       body.image,
       'Analiza esta foto de comida con máximo detalle. Recorre visualmente toda la imagen antes de responder. Identifica CADA alimento o componente visible por separado, aunque sea pequeño o esté parcialmente cubierto: carnes, pollo, pescado, huevos, arroz, pasta, papas, pan, verduras, ensaladas, legumbres, queso, frutas, salsas, aderezos, aceite, bebidas y guarniciones. No te quedes solo con el alimento principal. Distingue ingredientes que parezcan diferentes. Para cada elemento estima la porción visible en gramos y sus calorías, proteína, carbohidratos, grasas y micronutrientes. Si no puedes identificar algo con certeza, usa la opción visualmente más probable y reduce confidence. No inventes alimentos que no sean visualmente plausibles. Responde en español y devuelve SOLO JSON compatible con el esquema.',
       schema,
-      'foods'
+      'foods',
+      body.imageHash
     );
     return json({ foods: Array.isArray(result?.foods) ? result.foods : [] });
   } catch (error) {
@@ -203,7 +221,8 @@ async function handleAnalyzeSupplement(request: Request, env: Env) {
       body.image,
       'Lee esta etiqueta de suplemento o vitamina con máximo detalle. Usa SOLO información visible o legible en la etiqueta. Identifica nombre, marca, porción, calorías, macros y todos los micronutrientes declarados. Si un nutriente no aparece, usa 0. No inventes dosis ni valores. Devuelve SOLO JSON compatible con el esquema.',
       schema,
-      'supplement'
+      'supplement',
+      body.imageHash
     );
     return json({ supplement: result?.supplement || null });
   } catch (error) {
