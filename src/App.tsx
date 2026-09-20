@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api, image } from './appdeployClient';
 
-const avatarSpriteUrl = new URL('./nutricontrol-avatar-sprite.webp', import.meta.url).href;
+const avatarSpriteUrl = '/nutricontrol-avatar-sprite.webp';
 
 type Micros = {
   fiber: number;
