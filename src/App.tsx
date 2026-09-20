@@ -121,7 +121,6 @@ const characterIcons: Record<string, string> = {
   tanjiro: '🌊', nezuko: '🎋', zenitsu: '⚡', inosuke: '🐗', yuji: '👊', megumi: '🐺', nobara: '🔨', gojo: '🔵',
   deku: '💚', bakugo: '💥', todoroki: '❄️', allmight: '💪', hinata: '🏐', kageyama: '👑', oikawa: '🏐', bokuto: '🦉',
   yuta: '⚔️', maki: '🗡️', toji: '🗡️', sukuna: '👹', eren: '🪽', mikasa: '⚔️', levi: '⚔️', armin: '🔥', erwin: '🫡', hange: '🔬',
-  momo: '🌸', okarun: '👽', aira: '✨', jiji: '🔥',
 };
 
 const characterStyles: Record<string, string> = {
@@ -132,9 +131,14 @@ const characterStyles: Record<string, string> = {
 };
 
 const themeAssets: Record<string, { logo: string; alt: string; credit: string }> = {
+  hajime: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Hajime_no_Ippo.png', alt: 'Logo Hajime no Ippo', credit: 'Wikimedia Commons · Hajime no Ippo' },
+  dragonball: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Dragon_Ball_Z_logo.svg', alt: 'Logo Dragon Ball Z', credit: 'Wikimedia Commons · Dragon Ball Z' },
+  naruto: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Naruto_Logo_(1).webp', alt: 'Logo Naruto', credit: 'Wikimedia Commons · Naruto' },
+  onepiece: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/One_piece_logo.svg', alt: 'Logo One Piece', credit: 'Wikimedia Commons · One Piece' },
   demonslayer: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Demon_Slayer_logo.svg', alt: 'Logo Demon Slayer', credit: 'Wikimedia Commons · Demon Slayer' },
   jujutsu: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Jujutsu_Kaisen_logo.svg', alt: 'Logo Jujutsu Kaisen', credit: 'Wikimedia Commons · Jujutsu Kaisen' },
   myhero: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/My_Hero_Academia_-_international_logo.png', alt: 'Logo My Hero Academia', credit: 'Wikimedia Commons · My Hero Academia' },
+  haikyuu: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Haikyuu!!_Logo.png', alt: 'Logo Haikyuu!!', credit: 'Wikimedia Commons · Haikyuu!!' },
   attackontitan: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Attack_on_Titan_logo.svg', alt: 'Logo Attack on Titan', credit: 'Wikimedia Commons · Attack on Titan' },
 };
 
@@ -172,9 +176,14 @@ const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
 };
 
 const themeCharacterImages: Record<string, string> = {
+  hajime: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Hajime_no_Ippo.png',
+  dragonball: 'https://dragonball.fandom.com/wiki/Special:FilePath/Goku.png',
+  naruto: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Bryon_Mode_Naruto.webp',
+  onepiece: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Luffy.jpg',
   demonslayer: 'https://kimetsu-no-yaiba.fandom.com/wiki/Special:FilePath/Tanjiro%20colored%20profile.png',
   jujutsu: 'https://jujutsu-kaisen.fandom.com/wiki/Special:FilePath/Satoru%20Gojo%20%28Anime%29.png',
   myhero: 'https://myheroacademia.fandom.com/wiki/Special:FilePath/Izuku%20Midoriya%20First%20Hero%20Costume%20Full%20Body%20Anime.png',
+  haikyuu: 'https://haikyuu.fandom.com/wiki/Special:FilePath/101ShoyoJump.png',
   attackontitan: 'https://attackontitan.fandom.com/wiki/Special:FilePath/Eren%20profile%20image.png',
 };
 
@@ -217,10 +226,6 @@ const characterImages: Record<string, string> = {
   armin: 'https://attackontitan.fandom.com/wiki/Special:FilePath/Armin%20Arlelt%20%28Anime%29%20character%20image%20%28854%29.png',
   erwin: 'https://attackontitan.fandom.com/wiki/Special:FilePath/Erwin%20Smith%20character%20image.png',
   hange: 'https://attackontitan.fandom.com/wiki/Special:FilePath/Hange%20Zoe%20character%20image.png',
-  momo: 'https://dandadan.fandom.com/wiki/Special:FilePath/Momo_Ayase.png',
-  okarun: 'https://dandadan.fandom.com/wiki/Special:FilePath/Ken_Takakura.png',
-  aira: 'https://dandadan.fandom.com/wiki/Special:FilePath/Aira_Shiratori.png',
-  jiji: 'https://dandadan.fandom.com/wiki/Special:FilePath/Jin_Enjoji.png',
 };
 
 function dailyCharacterMessage(theme: string, character: string, day: Day, targets: Targets, level: number) {
@@ -270,10 +275,6 @@ function dailyCharacterMessage(theme: string, character: string, day: Day, targe
     kageyama: ['Precisión en cada registro. La técnica importa.', 'Haz bien lo básico y el resultado llegará con el tiempo.', 'Controla tus variables y mejora tu rendimiento.'],
     oikawa: ['La preparación diaria es lo que hace que el esfuerzo luzca.', 'Cuida los detalles: agua, sueño, comida y entrenamiento.', 'Hoy también puedes mejorar una pequeña parte de tu juego.'],
     bokuto: ['¡HEY HEY HEY! ¡Hoy vamos por otro nivel!', 'Aunque el día empiece bajo, podemos terminarlo arriba.', '¡Registra tu progreso y vamos con todo!'],
-    momo: ['Mantén tu energía y sigue avanzando aunque el día se ponga raro.', 'Tu progreso también se construye cuando confías en tu propia fuerza.', 'Hoy toca cumplir la misión y no perder el rumbo.'],
-    okarun: ['La curiosidad sirve, pero la constancia es la que transforma tus hábitos.', 'Registra tus datos, ajusta tu estrategia y sigue avanzando.', 'Un pequeño progreso hoy puede convertirse en un gran cambio.'],
-    aira: ['Confía en tu progreso y demuestra lo que puedes construir.', 'Disciplina, energía y constancia: esa es tu misión de hoy.', 'Haz que tus hábitos estén a la altura de tus objetivos.'],
-    jiji: ['Mantén la energía arriba y cumple una misión más.', 'No necesitas un día perfecto; necesitas seguir avanzando.', 'Entrena, registra y vuelve mañana con más fuerza.'],
   };
   const pool = lines[keyName] || lines.ippo;
   if (day.water >= targets.water && proteinPct >= 1 && exercise) return `¡Misión completada! Nivel ${level}: hoy cumpliste agua, proteína y ejercicio. ${pool[dateSeed % pool.length]}`;
