@@ -30,6 +30,11 @@ function extractJson(text: string): any {
   throw new Error('La IA no devolvió un resultado válido.');
 }
 
+function toDataUri(image: string, mimeType = 'image/jpeg') {
+  if (image.startsWith('data:')) return image;
+  return `data:${mimeType};base64,${image}`;
+}
+
 async function runVision(env: Env, image: string, question: string) {
   const response: any = await env.AI.run(MODEL, {
     task: 'query',
@@ -43,10 +48,10 @@ async function runVision(env: Env, image: string, question: string) {
 }
 
 async function handleAnalyzeFood(request: Request, env: Env) {
-  const body = await request.json() as { image?: string };
+  const body = await request.json() as { image?: string; mimeType?: string };
   if (!body.image || typeof body.image !== 'string') return json({ error: 'No se recibió la imagen.' }, 400);
 
-  const answer = await runVision(env, body.image, `Analiza esta foto de comida para una app de nutrición. Identifica SOLO los alimentos visibles y estima sus cantidades. Responde EXCLUSIVAMENTE con JSON válido, sin markdown ni explicaciones, con esta estructura:
+  const answer = await runVision(env, toDataUri(body.image, body.mimeType), `Analiza esta foto de comida para una app de nutrición. Identifica SOLO los alimentos visibles y estima sus cantidades. Responde EXCLUSIVAMENTE con JSON válido, sin markdown ni explicaciones, con esta estructura:
 {"foods":[{"name":"nombre del alimento en español","grams":0,"kcal":0,"p":0,"c":0,"f":0,"confidence":0.0,"micros":{"fiber":0,"sugar":0,"sodium":0,"calcium":0,"iron":0,"potassium":0,"magnesium":0,"vitaminC":0,"vitaminD":0,"vitaminB12":0}}]}
 Usa gramos y kcal aproximados por la porción visible. confidence debe estar entre 0 y 1. Si no puedes identificar comida con suficiente seguridad, devuelve {"foods":[]}. No inventes alimentos que no se vean.`);
   const parsed = extractJson(answer);
@@ -57,7 +62,7 @@ async function handleAnalyzeSupplement(request: Request, env: Env) {
   const body = await request.json() as { image?: string };
   if (!body.image || typeof body.image !== 'string') return json({ error: 'No se recibió la imagen.' }, 400);
 
-  const answer = await runVision(env, body.image, `Lee esta etiqueta de suplemento o vitamina. Responde EXCLUSIVAMENTE con JSON válido, sin markdown ni explicaciones, con esta estructura:
+  const answer = await runVision(env, toDataUri(body.image, body.mimeType), `Lee esta etiqueta de suplemento o vitamina. Responde EXCLUSIVAMENTE con JSON válido, sin markdown ni explicaciones, con esta estructura:
 {"supplement":{"name":"nombre","brand":"marca","serving":"porción","kcal":0,"p":0,"c":0,"f":0,"micros":{"fiber":0,"sugar":0,"sodium":0,"calcium":0,"iron":0,"potassium":0,"magnesium":0,"vitaminC":0,"vitaminD":0,"vitaminB12":0}}}
 Usa solo información legible en la etiqueta. Si no puedes leerla con seguridad, devuelve {"supplement":null}.`);
   const parsed = extractJson(answer);
