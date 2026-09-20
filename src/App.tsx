@@ -84,27 +84,19 @@ const meals = ['Desayuno', 'Almuerzo', 'Once', 'Cena', 'Snacks'];
 const key = 'nutricontrol-v3';
 
 const animeThemes = [
-  ['hajime', 'Hajime no Ippo', 'Boxeo y disciplina'],
-  ['dragonball', 'Dragon Ball Z', 'Entrenamiento y superación'],
-  ['naruto', 'Naruto', 'Ninja y constancia'],
-  ['onepiece', 'One Piece', 'Aventura y tripulación'],
   ['demonslayer', 'Demon Slayer', 'Respiración y concentración'],
   ['jujutsu', 'Jujutsu Kaisen', 'Energía y combate'],
   ['myhero', 'My Hero Academia', 'Héroe y progreso'],
-  ['haikyuu', 'Haikyuu!!', 'Equipo y rendimiento'],
   ['attackontitan', 'Attack on Titan', 'Supervivencia y determinación'],
+  ['dandadan', 'Dandadan', 'Energía, aventura y constancia'],
 ] as const;
 
 const animeCharacters: Record<string, Array<[string, string]>> = {
-  hajime: [['ippo', 'Ippo Makunouchi'], ['takamura', 'Mamoru Takamura'], ['miyata', 'Ichiro Miyata']],
-  dragonball: [['goku', 'Goku'], ['vegeta', 'Vegeta'], ['gohan', 'Gohan'], ['piccolo', 'Piccolo']],
-  naruto: [['naruto', 'Naruto Uzumaki'], ['sasuke', 'Sasuke Uchiha'], ['sakura', 'Sakura Haruno'], ['kakashi', 'Kakashi Hatake']],
-  onepiece: [['luffy', 'Monkey D. Luffy'], ['zoro', 'Roronoa Zoro'], ['nami', 'Nami'], ['sanji', 'Sanji']],
   demonslayer: [['tanjiro', 'Tanjiro Kamado'], ['nezuko', 'Nezuko Kamado'], ['zenitsu', 'Zenitsu Agatsuma'], ['inosuke', 'Inosuke Hashibira']],
   jujutsu: [['yuji', 'Yuji Itadori'], ['megumi', 'Megumi Fushiguro'], ['nobara', 'Nobara Kugisaki'], ['gojo', 'Satoru Gojo'], ['yuta', 'Yuta Okkotsu'], ['maki', 'Maki Zenin'], ['toji', 'Toji Fushiguro'], ['sukuna', 'Ryomen Sukuna']],
-  attackontitan: [['eren', 'Eren Yeager'], ['mikasa', 'Mikasa Ackerman'], ['levi', 'Levi Ackerman'], ['armin', 'Armin Arlert'], ['erwin', 'Erwin Smith'], ['hange', 'Hange Zoe']],
   myhero: [['deku', 'Izuku Midoriya'], ['bakugo', 'Katsuki Bakugo'], ['todoroki', 'Shoto Todoroki'], ['allmight', 'All Might']],
-  haikyuu: [['hinata', 'Shoyo Hinata'], ['kageyama', 'Tobio Kageyama'], ['oikawa', 'Toru Oikawa'], ['bokuto', 'Kotaro Bokuto']],
+  attackontitan: [['eren', 'Eren Yeager'], ['mikasa', 'Mikasa Ackerman'], ['levi', 'Levi Ackerman'], ['armin', 'Armin Arlert'], ['erwin', 'Erwin Smith'], ['hange', 'Hange Zoe']],
+  dandadan: [['momo', 'Momo Ayase'], ['okarun', 'Ken Takakura (Okarun)'], ['aira', 'Aira Shiratori'], ['jiji', 'Jin Enjoji (Jiji)']],
 };
 
 function defaultAnimeCharacter(theme: string) {
@@ -131,27 +123,19 @@ const characterStyles: Record<string, string> = {
 };
 
 const themeAssets: Record<string, { logo: string; alt: string; credit: string }> = {
-  hajime: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Hajime_no_Ippo.png', alt: 'Logo Hajime no Ippo', credit: 'Wikimedia Commons · Hajime no Ippo' },
-  dragonball: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Dragon_Ball_Z_logo.svg', alt: 'Logo Dragon Ball Z', credit: 'Wikimedia Commons · Dragon Ball Z' },
-  naruto: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Naruto_Logo_(1).webp', alt: 'Logo Naruto', credit: 'Wikimedia Commons · Naruto' },
-  onepiece: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/One_piece_logo.svg', alt: 'Logo One Piece', credit: 'Wikimedia Commons · One Piece' },
   demonslayer: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Demon_Slayer_logo.svg', alt: 'Logo Demon Slayer', credit: 'Wikimedia Commons · Demon Slayer' },
   jujutsu: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Jujutsu_Kaisen_logo.svg', alt: 'Logo Jujutsu Kaisen', credit: 'Wikimedia Commons · Jujutsu Kaisen' },
   myhero: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/My_Hero_Academia_-_international_logo.png', alt: 'Logo My Hero Academia', credit: 'Wikimedia Commons · My Hero Academia' },
-  haikyuu: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Haikyuu!!_Logo.png', alt: 'Logo Haikyuu', credit: 'Wikimedia Commons · Haikyuu!!' },
   attackontitan: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Attack_on_Titan_logo.svg', alt: 'Logo Attack on Titan', credit: 'Wikimedia Commons · Attack on Titan' },
+  dandadan: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Dandadan_icon_logo.svg', alt: 'Logo Dandadan', credit: 'Wikimedia Commons · Dandadan' },
 };
 
 const themeBanners: Record<string, string> = {
-  hajime: 'https://images5.alphacoders.com/332/thumb-1920-332648.jpg',
-  dragonball: 'https://images5.alphacoders.com/922/922388.jpg',
-  naruto: 'https://images5.alphacoders.com/164/164252.jpg',
-  onepiece: 'https://images5.alphacoders.com/176/176117.jpg',
   demonslayer: 'https://images5.alphacoders.com/104/1047280.jpg',
   jujutsu: 'https://images5.alphacoders.com/117/1170340.jpg',
   myhero: 'https://images5.alphacoders.com/102/1023028.jpg',
-  haikyuu: 'https://images5.alphacoders.com/938/938985.jpg',
   attackontitan: 'https://images5.alphacoders.com/613/613179.jpg',
+  dandadan: 'https://img.uhdpaper.com/wallpaper/dandadan-anime-characters-184@5@b-pc-4k.jpg',
 };
 
 const proxiedImage = (url: string) => url ? `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=1600&fit=inside&q=88` : '';
@@ -176,15 +160,11 @@ const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
 };
 
 const themeCharacterImages: Record<string, string> = {
-  hajime: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Hajime_no_Ippo.png',
-  dragonball: 'https://dragonball.fandom.com/wiki/Special:FilePath/Goku.png',
-  naruto: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Bryon_Mode_Naruto.webp',
-  onepiece: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Luffy.jpg',
-  demonslayer: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Tanjiro_Kamado.jpg',
-  jujutsu: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Jujutsu_Kaisen_logo.svg',
+  demonslayer: 'https://kimetsu-no-yaiba.fandom.com/wiki/Special:FilePath/Tanjiro%20colored%20profile.png',
+  jujutsu: 'https://jujutsu-kaisen.fandom.com/wiki/Special:FilePath/Satoru%20Gojo%20%28Anime%29.png',
   myhero: 'https://myheroacademia.fandom.com/wiki/Special:FilePath/Izuku%20Midoriya%20First%20Hero%20Costume%20Full%20Body%20Anime.png',
-  haikyuu: 'https://haikyuu.fandom.com/wiki/Special:FilePath/101ShoyoJump.png',
   attackontitan: 'https://attackontitan.fandom.com/wiki/Special:FilePath/Eren%20profile%20image.png',
+  dandadan: 'https://dandadan.fandom.com/wiki/Special:FilePath/Momo_Ayase.png',
 };
 
 const characterImages: Record<string, string> = {
@@ -226,6 +206,10 @@ const characterImages: Record<string, string> = {
   armin: 'https://attackontitan.fandom.com/wiki/Special:FilePath/Armin%20Arlelt%20%28Anime%29%20character%20image%20%28854%29.png',
   erwin: 'https://attackontitan.fandom.com/wiki/Special:FilePath/Erwin%20Smith%20character%20image.png',
   hange: 'https://attackontitan.fandom.com/wiki/Special:FilePath/Hange%20Zoe%20character%20image.png',
+  momo: 'https://dandadan.fandom.com/wiki/Special:FilePath/Momo_Ayase.png',
+  okarun: 'https://dandadan.fandom.com/wiki/Special:FilePath/Ken_Takakura.png',
+  aira: 'https://dandadan.fandom.com/wiki/Special:FilePath/Aira_Shiratori.png',
+  jiji: 'https://dandadan.fandom.com/wiki/Special:FilePath/Jin_Enjoji.png',
 };
 
 function dailyCharacterMessage(theme: string, character: string, day: Day, targets: Targets, level: number) {
@@ -428,10 +412,15 @@ function makeProfile(name: string): UserProfile {
     activity: 'moderado',
     targets: calculateTargets(30, 'hombre', 80, 175, 'perder', 'moderado'),
     setupComplete: false,
-    animeTheme: 'hajime',
-    animeCharacter: defaultAnimeCharacter('hajime'),    seasonStartedAt: undefined,
+    animeTheme: 'demonslayer',
+    animeCharacter: defaultAnimeCharacter('demonslayer'),    seasonStartedAt: undefined,
     days: {},
   };
+}
+
+const allowedAnimeThemes = new Set(animeThemes.map(([theme]) => theme));
+function normalizeAnimeTheme(theme: unknown) {
+  return typeof theme === 'string' && allowedAnimeThemes.has(theme) ? theme : 'demonslayer';
 }
 
 function loadState(): AppState {
@@ -445,8 +434,11 @@ function loadState(): AppState {
             ...makeProfile(String(p.name || 'Perfil')),
             ...p,
             targets: p.targets || calculateTargets(Number(p.age || 30), p.sex === 'mujer' ? 'mujer' : 'hombre', Number(p.weight || 80), Number(p.height || 175), p.goal || 'perder', p.activity || 'moderado'),
-            animeTheme: p.animeTheme || 'hajime',
-            animeCharacter: p.animeCharacter || defaultAnimeCharacter(p.animeTheme || 'hajime'),
+            animeTheme: normalizeAnimeTheme(p.animeTheme),
+            animeCharacter: (() => {
+              const theme = normalizeAnimeTheme(p.animeTheme);
+              return animeCharacters[theme]?.some(([id]) => id === p.animeCharacter) ? p.animeCharacter : defaultAnimeCharacter(theme);
+            })(),
             seasonStartedAt: p.seasonStartedAt,
             days: Object.fromEntries(Object.entries(p.days || {}).map(([d, value]) => [d, normalizeDay(value)])),
           })),
@@ -550,14 +542,14 @@ export default function App() {
   }, 0);
   const level = Math.max(1, Math.floor(totalXp / 100) + 1);
   const levelXp = totalXp % 100;
-  const currentTheme = active?.animeTheme || 'hajime';
+  const currentTheme = active?.animeTheme || 'demonslayer';
   const currentCharacter = active?.animeCharacter || defaultAnimeCharacter(currentTheme);
   const currentCharacterName = animeCharacterName(currentTheme, currentCharacter);
   const currentCharacterIcon = characterIcons[currentCharacter] || '⭐';
   const currentCharacterStyle = characterStyles[currentCharacter] || 'black-red';
-  const currentThemeAsset = themeAssets[currentTheme] || themeAssets.hajime;
-  const currentCharacterImage = characterImages[currentCharacter] || themeCharacterImages[currentTheme] || themeCharacterImages.hajime;
-  const currentThemeBanner = themeBanners[currentTheme] || themeCharacterImages[currentTheme] || currentCharacterImage;
+  const currentThemeAsset = themeAssets[currentTheme] || themeAssets.demonslayer;
+  const currentCharacterImage = characterImages[currentCharacter] || themeCharacterImages[currentTheme] || themeCharacterImages.demonslayer;
+  const currentThemeBanner = themeBanners[currentTheme] || themeBanners.demonslayer;
   const missionItems = [
     ['💧', `Beber ${Math.round(targets.water / 1000)} L de agua`, day.water >= targets.water],
     ['🥩', `Alcanzar ${Math.round(targets.p)} g de proteína`, totals.p >= targets.p],
@@ -827,7 +819,7 @@ export default function App() {
         <div className="dashboardLayout">
           <div className="dashboardPrimary">
             <section className="hero">
-              <div className="heroBackdrop"><img src={currentThemeBanner} alt="" referrerPolicy="no-referrer" data-original-src={currentThemeBanner} onError={handleImageError} /></div>
+              <div className="heroBackdrop"><img src={proxiedImage(currentThemeBanner)} alt="" referrerPolicy="no-referrer" data-original-src={currentThemeBanner} onError={handleImageError} /></div>
               <div className="heroMain">                <div className="heroLogo"><img src={currentThemeAsset.logo} alt={currentThemeAsset.alt} /></div>
                 <div className="eyebrow">{active?.seasonStartedAt ? `TEMPORADA ${seasonNumber(active.seasonStartedAt)}` : 'TEMPORADA SIN INICIAR'} · {animeThemes.find(([theme]) => theme === currentTheme)?.[1] || 'Anime'}</div>
                 <h1>¡Hoy se pelea por el progreso!</h1>
