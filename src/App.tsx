@@ -325,24 +325,29 @@ function CharacterAvatar({ characterId, name, className = '' }: { characterId: s
     hinata: 38, kageyama: 39,
   };
   const index = avatarIndex[characterId];
-  const hasAvatar = typeof index === 'number';
-  const col = hasAvatar ? index % 8 : 0;
-  const row = hasAvatar ? Math.floor(index / 8) : 0;
-  const cell = hasAvatar ? {
-    position: 'absolute' as const,
-    width: '12.5%',
-    height: '20%',
-    left: `${col * 12.5}%`,
-    top: `${row * 20}%`,
-    backgroundImage: `url(${avatarSpriteUrl})`,
-    backgroundSize: '800% 500%',
-    backgroundPosition: `${col * 14.285714}% ${row * 25}%`,
-    backgroundRepeat: 'no-repeat' as const,
-  } : null;
-  return <span className={className} role="img" aria-label={name} title={name}
-    style={{ position:'relative', display:'block', width:'100%', height:'100%', backgroundColor:'#151b27', overflow:'hidden', fontSize:'1.5em' }}>
-    {cell ? <span aria-hidden="true" style={{...cell, display:'block'}} /> : (characterIcons[characterId] || '★')}
-  </span>;
+  if (typeof index !== 'number') {
+    return <span className={className} role="img" aria-label={name} title={name}
+      style={{ display:'block', width:'100%', height:'100%', background:'#151b27', textAlign:'center', lineHeight:1.8 }}>
+      {characterIcons[characterId] || '★'}
+    </span>;
+  }
+
+  // The source sprite is a fixed 8x5 grid (1536x1024).
+  // Using an SVG viewport avoids CSS background/image scaling conflicts.
+  const col = index % 8;
+  const row = Math.floor(index / 8);
+  const cellWidth = 1536 / 8;
+  const cellHeight = 1024 / 5;
+  const x = col * cellWidth;
+  const y = row * cellHeight;
+
+  return <svg className={className} role="img" aria-label={name} title={name}
+    viewBox={`${x} ${y} ${cellWidth} ${cellHeight}`}
+    preserveAspectRatio="xMidYMid slice"
+    style={{ display:'block', width:'100%', height:'100%', background:'#151b27', overflow:'hidden' }}>
+    <image href={avatarSpriteUrl} x="0" y="0" width="1536" height="1024"
+      preserveAspectRatio="none" aria-hidden="true" />
+  </svg>;
 }
 
 function dailyCharacterMessage(theme: string, character: string, day: Day, targets: Targets, level: number) {
