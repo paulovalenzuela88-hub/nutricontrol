@@ -170,7 +170,7 @@ const themeBanners: Record<string, string> = {
 };
 
 const proxiedImage = (url: string) => url ? `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=1600&fit=inside&q=88` : '';
-const characterProxy = (url: string) => url ? `https://images.weserv.nl/?url=${encodeURIComponent(url)}&w=700&fit=cover&q=92` : '';
+const characterProxy = (url: string) => url ? `https://images.weserv.nl/?url=${encodeURIComponent(url)}&w=180&h=180&fit=cover&q=82` : '';
 const characterDisplayImage = (url: string) => url ? characterProxy(url) : '';
 
 const characterImageCacheKey = 'nutricontrol-character-images-v1';
@@ -308,30 +308,20 @@ const characterImages: Record<string, string> = {
 
 const jikanCharacterCache: Record<string, string> = {};
 
+// Mini avatar: usa directamente la ilustración real configurada, optimizada a 180px.
+// No hace búsquedas externas ni dispara decenas de peticiones al cargar el selector.
 function CharacterAvatar({ characterId, name, className = '' }: { characterId: string; name: string; className?: string }) {
   const staticImage = characterDisplayImage(characterImages[characterId] || '');
-  const [src, setSrc] = useState<string>(() => characterImageCache[characterId] || staticImage);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchRealCharacterImage(characterId, name)
-      .then(imageUrl => {
-        if (!cancelled && imageUrl) setSrc(imageUrl);
-      })
-      .catch(() => {
-        // Sin ilustraciones inventadas: conservamos solo una imagen real ya configurada.
-      });
-    return () => { cancelled = true; };
-  }, [characterId, name, staticImage]);
-
   return <img
     className={className}
-    src={src}
+    src={staticImage}
     alt={name}
+    loading="lazy"
+    decoding="async"
     referrerPolicy="no-referrer"
-    onError={() => {
-      if (src && src !== staticImage && staticImage) setSrc(staticImage);
-      else setSrc('');
+    onError={(e) => {
+      const img = e.currentTarget;
+      if (img.src) img.style.opacity = '0';
     }}
   />;
 }
