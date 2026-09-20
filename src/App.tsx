@@ -84,27 +84,29 @@ const meals = ['Desayuno', 'Almuerzo', 'Once', 'Cena', 'Snacks'];
 const key = 'nutricontrol-v3';
 
 const animeThemes = [
-  ['hajime', 'Hajime no Ippo', 'Boxeo y disciplina'],
-  ['dragonball', 'Dragon Ball Z', 'Entrenamiento y superación'],
-  ['naruto', 'Naruto', 'Ninja y constancia'],
-  ['onepiece', 'One Piece', 'Aventura y tripulación'],
+  ['attackontitan', 'Attack on Titan', 'Supervivencia y determinación'],
+  ['myhero', 'My Hero Academia', 'Héroe y progreso'],
+  ['chainsaw', 'Chainsaw Man', 'Caos, fuerza y supervivencia'],
+  ['sololeveling', 'Solo Leveling', 'Subir de nivel y superar límites'],
   ['demonslayer', 'Demon Slayer', 'Respiración y concentración'],
   ['jujutsu', 'Jujutsu Kaisen', 'Energía y combate'],
-  ['myhero', 'My Hero Academia', 'Héroe y progreso'],
+  ['hajime', 'Hajime no Ippo', 'Boxeo y disciplina'],
+  ['dragonball', 'Dragon Ball Z', 'Entrenamiento y superación'],
+  ['dandadan', 'Dandadan', 'Energía paranormal y aventura'],
   ['haikyuu', 'Haikyuu!!', 'Equipo y rendimiento'],
-  ['attackontitan', 'Attack on Titan', 'Supervivencia y determinación'],
 ] as const;
 
 const animeCharacters: Record<string, Array<[string, string]>> = {
-  hajime: [['ippo', 'Ippo Makunouchi'], ['takamura', 'Mamoru Takamura'], ['miyata', 'Ichiro Miyata']],
-  dragonball: [['goku', 'Goku'], ['vegeta', 'Vegeta'], ['gohan', 'Gohan'], ['piccolo', 'Piccolo']],
-  naruto: [['naruto', 'Naruto Uzumaki'], ['sasuke', 'Sasuke Uchiha'], ['sakura', 'Sakura Haruno'], ['kakashi', 'Kakashi Hatake']],
-  onepiece: [['luffy', 'Monkey D. Luffy'], ['zoro', 'Roronoa Zoro'], ['nami', 'Nami'], ['sanji', 'Sanji']],
+  attackontitan: [['eren', 'Eren Yeager'], ['mikasa', 'Mikasa Ackerman'], ['levi', 'Levi Ackerman'], ['armin', 'Armin Arlert'], ['erwin', 'Erwin Smith'], ['hange', 'Hange Zoe']],
+  myhero: [['deku', 'Izuku Midoriya'], ['bakugo', 'Katsuki Bakugo'], ['todoroki', 'Shoto Todoroki'], ['allmight', 'All Might']],
+  chainsaw: [['denji', 'Denji'], ['power', 'Power'], ['aki', 'Aki Hayakawa'], ['makima', 'Makima'], ['reze', 'Reze']],
+  sololeveling: [['jinwoo', 'Sung Jin-Woo'], ['chae', 'Cha Hae-In'], ['igris', 'Igris'], ['beru', 'Beru'], ['ashborn', 'Ashborn']],
   demonslayer: [['tanjiro', 'Tanjiro Kamado'], ['nezuko', 'Nezuko Kamado'], ['zenitsu', 'Zenitsu Agatsuma'], ['inosuke', 'Inosuke Hashibira']],
   jujutsu: [['yuji', 'Yuji Itadori'], ['megumi', 'Megumi Fushiguro'], ['nobara', 'Nobara Kugisaki'], ['gojo', 'Satoru Gojo'], ['yuta', 'Yuta Okkotsu'], ['maki', 'Maki Zenin'], ['toji', 'Toji Fushiguro'], ['sukuna', 'Ryomen Sukuna']],
-  myhero: [['deku', 'Izuku Midoriya'], ['bakugo', 'Katsuki Bakugo'], ['todoroki', 'Shoto Todoroki'], ['allmight', 'All Might']],
+  hajime: [['ippo', 'Ippo Makunouchi'], ['takamura', 'Mamoru Takamura'], ['miyata', 'Ichiro Miyata']],
+  dragonball: [['goku', 'Goku'], ['vegeta', 'Vegeta'], ['gohan', 'Gohan'], ['piccolo', 'Piccolo']],
+  dandadan: [['okarun', 'Okarun'], ['momo', 'Momo Ayase'], ['aira', 'Aira Shiratori'], ['jiji', 'Jiji Enjoji']],
   haikyuu: [['hinata', 'Shoyo Hinata'], ['kageyama', 'Tobio Kageyama'], ['oikawa', 'Toru Oikawa'], ['bokuto', 'Kotaro Bokuto']],
-  attackontitan: [['eren', 'Eren Yeager'], ['mikasa', 'Mikasa Ackerman'], ['levi', 'Levi Ackerman'], ['armin', 'Armin Arlert'], ['erwin', 'Erwin Smith'], ['hange', 'Hange Zoe']],
 };
 
 function defaultAnimeCharacter(theme: string) {
@@ -116,42 +118,55 @@ function animeCharacterName(theme: string, character: string) {
 }
 
 const characterIcons: Record<string, string> = {
-  ippo: '🥊', takamura: '💥', miyata: '⚡', goku: '⚡', vegeta: '👑', gohan: '🔥', piccolo: '🟢',
-  naruto: '🍥', sasuke: '⚔️', sakura: '🌸', kakashi: '👁️', luffy: '🏴‍☠️', zoro: '⚔️', nami: '🧭', sanji: '🔥',
-  tanjiro: '🌊', nezuko: '🎋', zenitsu: '⚡', inosuke: '🐗', yuji: '👊', megumi: '🐺', nobara: '🔨', gojo: '🔵',
-  deku: '💚', bakugo: '💥', todoroki: '❄️', allmight: '💪', hinata: '🏐', kageyama: '👑', oikawa: '🏐', bokuto: '🦉',
-  yuta: '⚔️', maki: '🗡️', toji: '🗡️', sukuna: '👹', eren: '🪽', mikasa: '⚔️', levi: '⚔️', armin: '🔥', erwin: '🫡', hange: '🔬',
+  eren: '🪽', mikasa: '⚔️', levi: '⚔️', armin: '🔥', erwin: '🫡', hange: '🔬',
+  deku: '💚', bakugo: '💥', todoroki: '❄️', allmight: '💪',
+  denji: '🪚', power: '🩸', aki: '⚔️', makima: '👁️', reze: '💣',
+  jinwoo: '🖤', chae: '⚔️', igris: '🛡️', beru: '🦋', ashborn: '👑',
+  tanjiro: '🌊', nezuko: '🎋', zenitsu: '⚡', inosuke: '🐗',
+  yuji: '👊', megumi: '🐺', nobara: '🔨', gojo: '🔵', yuta: '⚔️', maki: '🗡️', toji: '🗡️', sukuna: '👹',
+  ippo: '🥊', takamura: '💥', miyata: '⚡',
+  goku: '⚡', vegeta: '👑', gohan: '🔥', piccolo: '🟢',
+  okarun: '👽', momo: '🔮', aira: '✨', jiji: '🔥',
+  hinata: '🏐', kageyama: '👑', oikawa: '🏐', bokuto: '🦉',
 };
 
 const characterStyles: Record<string, string> = {
-  ippo: 'black-red', takamura: 'gold-black', miyata: 'blue-white', goku: 'orange-blue', vegeta: 'blue-white', gohan: 'purple-gold', piccolo: 'green-purple',
-  naruto: 'orange-black', sasuke: 'blue-purple', sakura: 'pink-red', kakashi: 'silver-blue', luffy: 'red-blue', zoro: 'green-black', nami: 'orange-blue', sanji: 'black-gold',
-  tanjiro: 'green-check', nezuko: 'pink-green', zenitsu: 'yellow-orange', inosuke: 'blue-gray', yuji: 'red-black', megumi: 'navy-blue', nobara: 'brown-red', gojo: 'white-blue',
-  deku: 'green-black', bakugo: 'orange-black', todoroki: 'red-white', allmight: 'blue-red', momo: 'pink-red', okarun: 'blue-purple', aira: 'pink-blue', jiji: 'orange-black', hinata: 'orange-black', kageyama: 'navy-blue', oikawa: 'teal-white', bokuto: 'black-gold', yuta: 'blue-white', maki: 'green-black', toji: 'black-red', sukuna: 'red-black', eren: 'green-black', mikasa: 'blue-red', levi: 'silver-blue', armin: 'gold-blue', erwin: 'green-black', hange: 'orange-black',
+  eren: 'green-black', mikasa: 'blue-red', levi: 'silver-blue', armin: 'gold-blue', erwin: 'green-black', hange: 'orange-black',
+  deku: 'green-black', bakugo: 'orange-black', todoroki: 'red-white', allmight: 'blue-red',
+  denji: 'orange-black', power: 'red-black', aki: 'blue-gray', makima: 'red-black', reze: 'blue-red',
+  jinwoo: 'black-blue', chae: 'white-blue', igris: 'red-black', beru: 'purple-black', ashborn: 'black-purple',
+  tanjiro: 'green-check', nezuko: 'pink-green', zenitsu: 'yellow-orange', inosuke: 'blue-gray',
+  yuji: 'red-black', megumi: 'navy-blue', nobara: 'brown-red', gojo: 'white-blue', yuta: 'blue-white', maki: 'green-black', toji: 'black-red', sukuna: 'red-black',
+  ippo: 'black-red', takamura: 'gold-black', miyata: 'blue-white',
+  goku: 'orange-blue', vegeta: 'blue-white', gohan: 'purple-gold', piccolo: 'green-purple',
+  okarun: 'blue-purple', momo: 'pink-blue', aira: 'pink-red', jiji: 'orange-black',
+  hinata: 'orange-black', kageyama: 'navy-blue', oikawa: 'teal-white', bokuto: 'black-gold',
 };
 
 const themeAssets: Record<string, { logo: string; alt: string; credit: string }> = {
-  hajime: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Hajime_no_Ippo.png', alt: 'Logo Hajime no Ippo', credit: 'Wikimedia Commons · Hajime no Ippo' },
-  dragonball: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Dragon_Ball_Z_logo.svg', alt: 'Logo Dragon Ball Z', credit: 'Wikimedia Commons · Dragon Ball Z' },
-  naruto: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Naruto_Logo_(1).webp', alt: 'Logo Naruto', credit: 'Wikimedia Commons · Naruto' },
-  onepiece: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/One_piece_logo.svg', alt: 'Logo One Piece', credit: 'Wikimedia Commons · One Piece' },
+  attackontitan: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Attack_on_Titan_logo.svg', alt: 'Logo Attack on Titan', credit: 'Wikimedia Commons · Attack on Titan' },
+  myhero: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/My_Hero_Academia_-_international_logo.png', alt: 'Logo My Hero Academia', credit: 'Wikimedia Commons · My Hero Academia' },
+  chainsaw: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Chainsaw_Man_English_anime_logo.svg', alt: 'Logo Chainsaw Man', credit: 'Wikimedia Commons · Chainsaw Man' },
+  sololeveling: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Solo_Leveling_anime_logo.svg', alt: 'Logo Solo Leveling', credit: 'Wikimedia Commons · Solo Leveling' },
   demonslayer: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Demon_Slayer_logo.svg', alt: 'Logo Demon Slayer', credit: 'Wikimedia Commons · Demon Slayer' },
   jujutsu: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Jujutsu_Kaisen_logo.svg', alt: 'Logo Jujutsu Kaisen', credit: 'Wikimedia Commons · Jujutsu Kaisen' },
-  myhero: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/My_Hero_Academia_-_international_logo.png', alt: 'Logo My Hero Academia', credit: 'Wikimedia Commons · My Hero Academia' },
+  hajime: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Hajime_no_Ippo.png', alt: 'Logo Hajime no Ippo', credit: 'Wikimedia Commons · Hajime no Ippo' },
+  dragonball: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Dragon_Ball_Z_logo.svg', alt: 'Logo Dragon Ball Z', credit: 'Wikimedia Commons · Dragon Ball Z' },
+  dandadan: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Dandadan_icon_logo.svg', alt: 'Logo Dandadan', credit: 'Wikimedia Commons · Dandadan' },
   haikyuu: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Haikyuu!!_Logo.png', alt: 'Logo Haikyuu!!', credit: 'Wikimedia Commons · Haikyuu!!' },
-  attackontitan: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Attack_on_Titan_logo.svg', alt: 'Logo Attack on Titan', credit: 'Wikimedia Commons · Attack on Titan' },
 };
 
 const themeBanners: Record<string, string> = {
-  hajime: 'https://images5.alphacoders.com/332/thumb-1920-332648.jpg',
-  dragonball: 'https://images5.alphacoders.com/922/922388.jpg',
-  naruto: 'https://images5.alphacoders.com/164/164252.jpg',
-  onepiece: 'https://images5.alphacoders.com/176/176117.jpg',
+  attackontitan: 'https://images5.alphacoders.com/613/613179.jpg',
+  myhero: 'https://images5.alphacoders.com/102/1023028.jpg',
+  chainsaw: 'https://images8.alphacoders.com/115/thumb-1920-1159925.jpg',
+  sololeveling: 'https://images2.alphacoders.com/139/thumb-1920-1394671.png',
   demonslayer: 'https://images5.alphacoders.com/104/1047280.jpg',
   jujutsu: 'https://images5.alphacoders.com/117/1170340.jpg',
-  myhero: 'https://images5.alphacoders.com/102/1023028.jpg',
+  hajime: 'https://images5.alphacoders.com/332/thumb-1920-332648.jpg',
+  dragonball: 'https://images5.alphacoders.com/922/922388.jpg',
+  dandadan: 'https://images8.alphacoders.com/137/thumb-1920-1379351.png',
   haikyuu: 'https://images5.alphacoders.com/938/938985.jpg',
-  attackontitan: 'https://images5.alphacoders.com/613/613179.jpg',
 };
 
 const proxiedImage = (url: string) => url ? `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=1600&fit=inside&q=88` : '';
@@ -176,30 +191,39 @@ const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
 };
 
 const themeCharacterImages: Record<string, string> = {
-  hajime: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Hajime_no_Ippo.png',
-  dragonball: 'https://dragonball.fandom.com/wiki/Special:FilePath/Goku.png',
-  naruto: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Bryon_Mode_Naruto.webp',
-  onepiece: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Luffy.jpg',
+  attackontitan: 'https://attackontitan.fandom.com/wiki/Special:FilePath/Eren%20profile%20image.png',
+  myhero: 'https://myheroacademia.fandom.com/wiki/Special:FilePath/Izuku%20Midoriya%20First%20Hero%20Costume%20Full%20Body%20Anime.png',
+  chainsaw: 'https://images8.alphacoders.com/115/thumb-1920-1159925.jpg',
+  sololeveling: 'https://images2.alphacoders.com/139/thumb-1920-1394671.png',
   demonslayer: 'https://kimetsu-no-yaiba.fandom.com/wiki/Special:FilePath/Tanjiro%20colored%20profile.png',
   jujutsu: 'https://jujutsu-kaisen.fandom.com/wiki/Special:FilePath/Satoru%20Gojo%20%28Anime%29.png',
-  myhero: 'https://myheroacademia.fandom.com/wiki/Special:FilePath/Izuku%20Midoriya%20First%20Hero%20Costume%20Full%20Body%20Anime.png',
+  hajime: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Hajime_no_Ippo.png',
+  dragonball: 'https://dragonball.fandom.com/wiki/Special:FilePath/Goku.png',
+  dandadan: 'https://images8.alphacoders.com/137/thumb-1920-1379351.png',
   haikyuu: 'https://haikyuu.fandom.com/wiki/Special:FilePath/101ShoyoJump.png',
-  attackontitan: 'https://attackontitan.fandom.com/wiki/Special:FilePath/Eren%20profile%20image.png',
 };
 
 const characterImages: Record<string, string> = {
-  goku: 'https://dragonball.fandom.com/wiki/Special:FilePath/Goku.png',
-  vegeta: 'https://dragonball.fandom.com/wiki/Special:FilePath/Vegeta%20in%20his%20original%20color%20scheme%20in%20the%20anime.png',
-  gohan: 'https://dragonball.fandom.com/wiki/Special:FilePath/Gohan.png',
-  piccolo: 'https://dragonball.fandom.com/wiki/Special:FilePath/Piccolo.png',
-  naruto: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Bryon_Mode_Naruto.webp',
-  sasuke: 'https://naruto.fandom.com/wiki/Special:FilePath/Sasuke.png',
-  sakura: 'https://naruto.fandom.com/wiki/Special:FilePath/Sakura.png',
-  kakashi: 'https://naruto.fandom.com/wiki/Special:FilePath/Kakashi.png',
-  luffy: 'https://onepiece.fandom.com/wiki/Special:FilePath/Luffy%20eyecatcher%20poster.png',
-  zoro: 'https://onepiece.fandom.com/wiki/Special:FilePath/Zoro%20eyecatcher%20poster.png',
-  nami: 'https://onepiece.fandom.com/wiki/Special:FilePath/Nami%20eyecatcher%20poster.png',
-  sanji: 'https://onepiece.fandom.com/wiki/Special:FilePath/Sanji%20eyecatcher%20poster.png',
+  eren: 'https://attackontitan.fandom.com/wiki/Special:FilePath/Eren%20profile%20image.png',
+  mikasa: 'https://attackontitan.fandom.com/wiki/Special:FilePath/Mikasa%20Ackermann%20%28Anime%29%20character%20image.png',
+  levi: 'https://attackontitan.fandom.com/wiki/Special:FilePath/Levi%20Ackermann%20%28Anime%29%20character%20image%20%28854%29.png',
+  armin: 'https://attackontitan.fandom.com/wiki/Special:FilePath/Armin%20Arlelt%20%28Anime%29%20character%20image%20%28854%29.png',
+  erwin: 'https://attackontitan.fandom.com/wiki/Special:FilePath/Erwin%20Smith%20character%20image.png',
+  hange: 'https://attackontitan.fandom.com/wiki/Special:FilePath/Hange%20Zoe%20character%20image.png',
+  deku: 'https://myheroacademia.fandom.com/wiki/Special:FilePath/Izuku%20Midoriya%20First%20Hero%20Costume%20Alt%20Anime.png',
+  bakugo: 'https://myheroacademia.fandom.com/wiki/Special:FilePath/Katsuki%20Bakugo%20Hero%20Costume%20Profile.png',
+  todoroki: 'https://myheroacademia.fandom.com/wiki/Special:FilePath/Shoto%20Todoroki%20Hero%20Costume%20Profile.png',
+  allmight: 'https://myheroacademia.fandom.com/wiki/Special:FilePath/All%20Might%20Hero%20Costume%20Profile.png',
+  denji: 'https://images8.alphacoders.com/115/thumb-1920-1159925.jpg',
+  power: 'https://images2.alphacoders.com/128/thumb-1920-1286296.jpg',
+  aki: 'https://images8.alphacoders.com/129/thumb-1920-1294192.png',
+  makima: 'https://chainsaw-man.fandom.com/wiki/Special:FilePath/Makima%20%28Anime%29.png',
+  reze: 'https://chainsaw-man.fandom.com/wiki/Special:FilePath/Reze%20%28Anime%29.png',
+  jinwoo: 'https://images2.alphacoders.com/139/thumb-1920-1394671.png',
+  chae: 'https://solo-leveling.fandom.com/wiki/Special:FilePath/Cha%20Hae-In%20%28Anime%29.png',
+  igris: 'https://solo-leveling.fandom.com/wiki/Special:FilePath/Anime%20Episode%2011%20Igris%20Picture%201.jpeg',
+  beru: 'https://solo-leveling.fandom.com/wiki/Special:FilePath/Beru%20%28Anime%29.png',
+  ashborn: 'https://solo-leveling.fandom.com/wiki/Special:FilePath/Ashborn%20%28Anime%29.png',
   tanjiro: 'https://kimetsu-no-yaiba.fandom.com/wiki/Special:FilePath/Tanjiro%20colored%20profile.png',
   nezuko: 'https://kimetsu-no-yaiba.fandom.com/wiki/Special:FilePath/Nezuko%20profile%20%28human%29.png',
   zenitsu: 'https://kimetsu-no-yaiba.fandom.com/wiki/Special:FilePath/Zenitsu%20Anime%20Profile.png',
@@ -212,20 +236,21 @@ const characterImages: Record<string, string> = {
   maki: 'https://jujutsu-kaisen.fandom.com/wiki/Special:FilePath/Maki%20Zenin%20%28Anime%29.png',
   toji: 'https://www.citypng.com/public/uploads/preview/jujutsu-kaisen-toji-fushiguro-sticker-character-png-735811696676725ea7lk1vzde.png',
   sukuna: 'https://jujutsu-kaisen.fandom.com/wiki/Special:FilePath/Sukuna%20%28Anime%29.png',
-  deku: 'https://myheroacademia.fandom.com/wiki/Special:FilePath/Izuku%20Midoriya%20First%20Hero%20Costume%20Alt%20Anime.png',
-  bakugo: 'https://myheroacademia.fandom.com/wiki/Special:FilePath/Katsuki%20Bakugo%20Hero%20Costume%20Profile.png',
-  todoroki: 'https://myheroacademia.fandom.com/wiki/Special:FilePath/Shoto%20Todoroki%20Hero%20Costume%20Profile.png',
-  allmight: 'https://myheroacademia.fandom.com/wiki/Special:FilePath/All%20Might%20Hero%20Costume%20Profile.png',
+  ippo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Hajime_no_Ippo.png',
+  takamura: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Hajime_no_Ippo.png',
+  miyata: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Hajime_no_Ippo.png',
+  goku: 'https://dragonball.fandom.com/wiki/Special:FilePath/Goku.png',
+  vegeta: 'https://dragonball.fandom.com/wiki/Special:FilePath/Vegeta%20in%20his%20original%20color%20scheme%20in%20the%20anime.png',
+  gohan: 'https://dragonball.fandom.com/wiki/Special:FilePath/Gohan.png',
+  piccolo: 'https://dragonball.fandom.com/wiki/Special:FilePath/Piccolo.png',
+  okarun: 'https://dandadan.fandom.com/wiki/Special:FilePath/Okarun%20full%20appearance%20%28Anime%29.png',
+  momo: 'https://dandadan.fandom.com/wiki/Special:FilePath/Momo%20Ayase%27s%20full%20appearance%20%28Anime%29.png',
+  aira: 'https://dandadan.fandom.com/wiki/Special:FilePath/Aira%20Anime%20Concept%20Art.png',
+  jiji: 'https://dandadan.fandom.com/wiki/Special:FilePath/Jiji%20full%20appearance%20%28Anime%29.png',
   hinata: 'https://haikyuu.fandom.com/wiki/Special:FilePath/101ShoyoJump.png',
   kageyama: 'https://haikyuu.fandom.com/wiki/Special:FilePath/102Tobio.png',
   oikawa: 'https://haikyuu.fandom.com/wiki/Special:FilePath/Oikawa.png',
   bokuto: 'https://haikyuu.fandom.com/wiki/Special:FilePath/Bokuto.png',
-  eren: 'https://attackontitan.fandom.com/wiki/Special:FilePath/Eren%20profile%20image.png',
-  mikasa: 'https://attackontitan.fandom.com/wiki/Special:FilePath/Mikasa%20Ackermann%20%28Anime%29%20character%20image.png',
-  levi: 'https://attackontitan.fandom.com/wiki/Special:FilePath/Levi%20Ackermann%20%28Anime%29%20character%20image%20%28854%29.png',
-  armin: 'https://attackontitan.fandom.com/wiki/Special:FilePath/Armin%20Arlelt%20%28Anime%29%20character%20image%20%28854%29.png',
-  erwin: 'https://attackontitan.fandom.com/wiki/Special:FilePath/Erwin%20Smith%20character%20image.png',
-  hange: 'https://attackontitan.fandom.com/wiki/Special:FilePath/Hange%20Zoe%20character%20image.png',
 };
 
 function dailyCharacterMessage(theme: string, character: string, day: Day, targets: Targets, level: number) {
@@ -564,7 +589,7 @@ export default function App() {
   const currentCharacterIcon = characterIcons[currentCharacter] || '⭐';
   const currentCharacterStyle = characterStyles[currentCharacter] || 'black-red';
   const currentThemeAsset = themeAssets[currentTheme] || themeAssets.hajime;
-  const currentCharacterImage = characterImages[currentCharacter] || themeCharacterImages[currentTheme] || themeCharacterImages.hajime;
+  const currentCharacterImage = characterProxy(characterImages[currentCharacter] || themeCharacterImages[currentTheme] || themeCharacterImages.hajime);
   const currentThemeBanner = themeBanners[currentTheme] || themeBanners.hajime;
   const missionItems = [
     ['💧', `Beber ${Math.round(targets.water / 1000)} L de agua`, day.water >= targets.water],
