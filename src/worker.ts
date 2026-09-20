@@ -137,7 +137,7 @@ async function runVision(env: Env, image: string, prompt: string, schema: any, e
 }
 
 async function handleAnalyzeFood(request: Request, env: Env) {
-  const body = await request.json() as { image?: string; imageHash?: string };
+  const body = await request.json() as { image?: string; imageHash?: string; requestId?: string };
   if (!body.image || typeof body.image !== 'string') {
     return json({ error: 'No se recibió la imagen.' }, 400);
   }
@@ -177,11 +177,13 @@ async function handleAnalyzeFood(request: Request, env: Env) {
       'foods',
       body.imageHash
     );
-    return json({ foods: Array.isArray(result?.foods) ? result.foods : [] });
+    return json({ foods: Array.isArray(result?.foods) ? result.foods : [], imageHash: body.imageHash || null, requestId: body.requestId || null });
   } catch (error) {
     console.error('Food analysis failed', error);
     return json({
-      error: error instanceof Error ? error.message : 'No fue posible analizar la fotografía.'
+      error: error instanceof Error ? error.message : 'No fue posible analizar la fotografía.',
+      imageHash: body.imageHash || null,
+      requestId: body.requestId || null,
     }, 502);
   }
 }
