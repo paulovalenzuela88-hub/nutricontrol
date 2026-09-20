@@ -948,7 +948,7 @@ export default function App() {
                 <h1>¡Hoy se pelea por el progreso!</h1>
                 <p>{active?.seasonStartedAt ? 'Cada 3 meses comienza una nueva temporada.' : 'Marca tu primer hito cuando estés listo para comenzar tu temporada.'}</p>
                 <div className="characterDialogue">
-                  <div className={`characterPortrait ${currentCharacterStyle}`} aria-label={currentCharacterName}><img src={characterDisplayImage(currentCharacterImage)} alt={currentCharacterName} referrerPolicy="no-referrer" data-original-src={currentCharacterImage} data-character-key={currentCharacter} data-character-fallback={characterAvatarDataUri(currentCharacter)} onError={handleImageError} /><span>{currentCharacterIcon}</span></div>
+                  <div className={`characterPortrait ${currentCharacterStyle}`} aria-label={currentCharacterName}><img src={characterDisplayImage(currentCharacterImage)} alt={currentCharacterName} referrerPolicy="no-referrer" data-original-src={currentCharacterImage} data-character-key={currentCharacter} onError={handleImageError} /><span>{currentCharacterIcon}</span></div>
                   <div><strong>{currentCharacterName}</strong><p>{characterMessage}</p></div>
                 </div>
                 {!active?.seasonStartedAt && <button className="milestoneButton" onClick={markFirstMilestone}>🏆 Marcar primer hito · comenzar temporada 1</button>}
