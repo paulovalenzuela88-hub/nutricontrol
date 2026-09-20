@@ -328,40 +328,20 @@ function CharacterAvatar({ characterId, name, className = '' }: { characterId: s
   const hasAvatar = typeof index === 'number';
   const col = hasAvatar ? index % 8 : 0;
   const row = hasAvatar ? Math.floor(index / 8) : 0;
-  return <span
-    className={className}
-    role="img"
-    aria-label={name}
-    title={name}
-    style={{
-      position: 'relative',
-      display: 'block',
-      width: '100%',
-      height: '100%',
-      backgroundColor: '#151b27',
-      overflow: 'hidden',
-      fontSize: '1.5em',
-    }}
-  >
-    {hasAvatar ? <img
-      src={avatarSpriteUrl}
-      alt=""
-      aria-hidden="true"
-      draggable={false}
-      style={{
-        position: 'absolute',
-        display: 'block',
-        width: '800%',
-        height: '500%',
-        maxWidth: 'none',
-        maxHeight: 'none',
-        left: `-${col * 100}%`,
-        top: `-${row * 100}%`,
-        objectFit: 'fill',
-        userSelect: 'none',
-        pointerEvents: 'none',
-      }}
-    /> : (characterIcons[characterId] || '★')}
+  const cell = hasAvatar ? {
+    position: 'absolute' as const,
+    width: '12.5%',
+    height: '20%',
+    left: `${col * 12.5}%`,
+    top: `${row * 20}%`,
+    backgroundImage: `url(${avatarSpriteUrl})`,
+    backgroundSize: '800% 500%',
+    backgroundPosition: `${col * 14.285714}% ${row * 25}%`,
+    backgroundRepeat: 'no-repeat' as const,
+  } : null;
+  return <span className={className} role="img" aria-label={name} title={name}
+    style={{ position:'relative', display:'block', width:'100%', height:'100%', backgroundColor:'#151b27', overflow:'hidden', fontSize:'1.5em' }}>
+    {cell ? <span aria-hidden="true" style={{...cell, display:'block'}} /> : (characterIcons[characterId] || '★')}
   </span>;
 }
 
