@@ -142,6 +142,37 @@ const themeAssets: Record<string, { logo: string; alt: string; credit: string }>
   attackontitan: { logo: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Attack_on_Titan_logo.svg', alt: 'Logo Attack on Titan', credit: 'Wikimedia Commons · Attack on Titan' },
 };
 
+const themeBanners: Record<string, string> = {
+  hajime: 'https://images5.alphacoders.com/332/thumb-1920-332648.jpg',
+  dragonball: 'https://images5.alphacoders.com/922/922388.jpg',
+  naruto: 'https://images5.alphacoders.com/164/164252.jpg',
+  onepiece: 'https://images5.alphacoders.com/176/176117.jpg',
+  demonslayer: 'https://images5.alphacoders.com/104/1047280.jpg',
+  jujutsu: 'https://images5.alphacoders.com/117/1170340.jpg',
+  myhero: 'https://images5.alphacoders.com/102/1023028.jpg',
+  haikyuu: 'https://images5.alphacoders.com/938/938985.jpg',
+  attackontitan: 'https://images5.alphacoders.com/613/613179.jpg',
+};
+
+const proxiedImage = (url: string) => url ? `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=1600&fit=inside&q=88` : '';
+
+const characterAvatarDataUri = (character: string) => {
+  const initials = character.slice(0, 2).toUpperCase();
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#172235"/><stop offset="1" stop-color="#5b2434"/></linearGradient></defs><rect width="320" height="320" rx="160" fill="url(#g)"/><circle cx="160" cy="125" r="68" fill="#d4a07b"/><path d="M72 118 Q160 35 248 118 Q226 76 160 72 Q94 76 72 118" fill="#182030"/><text x="160" y="255" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="54" font-weight="800">${initials}</text></svg>`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+};
+
+const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+  const img = e.currentTarget;
+  const original = img.dataset.originalSrc || img.src;
+  const stage = Number(img.dataset.imageStage || '0');
+  if (!img.dataset.originalSrc) img.dataset.originalSrc = img.src;
+  if (stage === 0) { img.dataset.imageStage = '1'; img.src = proxiedImage(original); return; }
+  if (stage === 1) { img.dataset.imageStage = '2'; img.src = original; return; }
+  if (img.dataset.characterKey) { img.dataset.imageStage = '3'; img.src = img.dataset.characterFallback || characterAvatarDataUri(img.dataset.characterKey); img.style.opacity = '1'; return; }
+  img.style.opacity = '0';
+};
+
 const themeCharacterImages: Record<string, string> = {
   hajime: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Hajime_no_Ippo.png',
   dragonball: 'https://dragonball.fandom.com/wiki/Special:FilePath/Goku.png',
@@ -177,7 +208,7 @@ const characterImages: Record<string, string> = {
   gojo: 'https://jujutsu-kaisen.fandom.com/wiki/Special:FilePath/Satoru%20Gojo%20%28Anime%29.png',
   yuta: 'https://jujutsu-kaisen.fandom.com/wiki/Special:FilePath/Yuta%20Okkotsu%20%28Anime%29.png',
   maki: 'https://jujutsu-kaisen.fandom.com/wiki/Special:FilePath/Maki%20Zenin%20%28Anime%29.png',
-  toji: 'https://jujutsu-kaisen.fandom.com/wiki/Special:FilePath/Toji%20Fushiguro%20%28Anime%29.png',
+  toji: 'https://www.citypng.com/public/uploads/preview/jujutsu-kaisen-toji-fushiguro-sticker-character-png-735811696676725ea7lk1vzde.png',
   sukuna: 'https://jujutsu-kaisen.fandom.com/wiki/Special:FilePath/Sukuna%20%28Anime%29.png',
   deku: 'https://myheroacademia.fandom.com/wiki/Special:FilePath/Izuku%20Midoriya%20First%20Hero%20Costume%20Alt%20Anime.png',
   bakugo: 'https://myheroacademia.fandom.com/wiki/Special:FilePath/Katsuki%20Bakugo%20Hero%20Costume%20Profile.png',
@@ -523,7 +554,8 @@ export default function App() {
   const currentCharacterIcon = characterIcons[currentCharacter] || '⭐';
   const currentCharacterStyle = characterStyles[currentCharacter] || 'black-red';
   const currentThemeAsset = themeAssets[currentTheme] || themeAssets.hajime;
-  const currentCharacterImage = characterImages[active?.animeCharacter || ''] || themeCharacterImages[currentTheme] || themeCharacterImages.hajime;
+  const currentCharacterImage = characterImages[currentCharacter] || themeCharacterImages[currentTheme] || themeCharacterImages.hajime;
+  const currentThemeBanner = themeBanners[currentTheme] || themeCharacterImages[currentTheme] || currentCharacterImage;
   const missionItems = [
     ['💧', `Beber ${Math.round(targets.water / 1000)} L de agua`, day.water >= targets.water],
     ['🥩', `Alcanzar ${Math.round(targets.p)} g de proteína`, totals.p >= targets.p],
@@ -793,13 +825,13 @@ export default function App() {
         <div className="dashboardLayout">
           <div className="dashboardPrimary">
             <section className="hero">
-              <div className="heroBackdrop"><img src={currentCharacterImage} alt="" onError={e => { e.currentTarget.style.display = 'none'; }} /></div>
+              <div className="heroBackdrop"><img src={currentThemeBanner} alt="" referrerPolicy="no-referrer" data-original-src={currentThemeBanner} onError={handleImageError} /></div>
               <div className="heroMain">                <div className="heroLogo"><img src={currentThemeAsset.logo} alt={currentThemeAsset.alt} /></div>
                 <div className="eyebrow">{active?.seasonStartedAt ? `TEMPORADA ${seasonNumber(active.seasonStartedAt)}` : 'TEMPORADA SIN INICIAR'} · {animeThemes.find(([theme]) => theme === currentTheme)?.[1] || 'Anime'}</div>
                 <h1>¡Hoy se pelea por el progreso!</h1>
                 <p>{active?.seasonStartedAt ? 'Cada 3 meses comienza una nueva temporada.' : 'Marca tu primer hito cuando estés listo para comenzar tu temporada.'}</p>
                 <div className="characterDialogue">
-                  <div className={`characterPortrait ${currentCharacterStyle}`} aria-label={currentCharacterName}><img src={currentCharacterImage} alt={currentCharacterName} onError={e => { e.currentTarget.style.display = 'none'; }} /><span>{currentCharacterIcon}</span></div>
+                  <div className={`characterPortrait ${currentCharacterStyle}`} aria-label={currentCharacterName}><img src={currentCharacterImage} alt={currentCharacterName} referrerPolicy="no-referrer" data-original-src={currentCharacterImage} data-character-key={currentCharacter} data-character-fallback={characterAvatarDataUri(currentCharacter)} onError={handleImageError} /><span>{currentCharacterIcon}</span></div>
                   <div><strong>{currentCharacterName}</strong><p>{characterMessage}</p></div>
                 </div>
                 {!active?.seasonStartedAt && <button className="milestoneButton" onClick={markFirstMilestone}>🏆 Marcar primer hito · comenzar temporada 1</button>}
@@ -890,10 +922,10 @@ export default function App() {
             <div className="profileActions"><button onClick={() => openSetup(false)}>⚙️ Editar perfil y objetivos</button><button onClick={editWeight}>⚖️ {day.weight ? 'Editar peso' : 'Registrar peso'}</button>{day.weight > 0 && <button className="dangerOutline" onClick={() => updateDay(d => { d.weight = 0; })}>Quitar peso del día</button>}</div>
             <h3>🎨 Tema anime del perfil</h3>
             <p>Elige un anime real para personalizar la ambientación de este perfil. Los gráficos son originales y no usan material oficial del anime.</p>
-            <div className="themeGrid">{animeThemes.map(([theme,name,desc]) => <button key={theme} className={active.animeTheme === theme ? 'themeActive' : ''} onClick={() => changeAnimeTheme(theme)}><img className="themeLogo" src={themeAssets[theme]?.logo} alt={themeAssets[theme]?.alt || name} onError={e => { e.currentTarget.style.visibility = 'hidden'; }} /><span><b>{name}</b><small>{desc}</small></span></button>)}</div>
+            <div className="themeGrid">{animeThemes.map(([theme,name,desc]) => <button key={theme} className={active.animeTheme === theme ? 'themeActive' : ''} onClick={() => changeAnimeTheme(theme)}><div className="themeBanner"><img src={proxiedImage(themeBanners[theme])} alt={name} referrerPolicy="no-referrer" data-original-src={themeBanners[theme]} onError={handleImageError} /></div><div className="themeCardBody"><img className="themeLogo" src={themeAssets[theme]?.logo} alt={themeAssets[theme]?.alt || name} onError={e => { e.currentTarget.style.visibility = 'hidden'; }} /><span><b>{name}</b><small>{desc}</small></span></div></button>)}</div>
             <h3>🧑‍🎤 Personaje</h3>
             <p>Elige el personaje que representará este perfil. Puedes cambiarlo cuando quieras.</p>
-            <div className="characterGrid">{(animeCharacters[active.animeTheme] || []).map(([characterId, name]) => <button key={characterId} className={active.animeCharacter === characterId ? 'characterActive' : ''} onClick={() => changeAnimeCharacter(characterId)}><span className="characterBadge"><img src={themeCharacterImages[active.animeTheme]} alt="" onError={e => { e.currentTarget.style.display = 'none'; }} /><span>{name.split(' ').map(part => part[0]).join('').slice(0, 2)}</span></span><b>{name}</b></button>)}</div>
+            <div className="characterGrid">{(animeCharacters[active.animeTheme] || []).map(([characterId, name]) => <button key={characterId} className={active.animeCharacter === characterId ? 'characterActive' : ''} onClick={() => changeAnimeCharacter(characterId)}><span className="characterBadge"><img src={proxiedImage(characterImages[characterId] || themeCharacterImages[active.animeTheme])} alt="" referrerPolicy="no-referrer" data-original-src={characterImages[characterId] || themeCharacterImages[active.animeTheme]} data-character-key={characterId} data-character-fallback={characterAvatarDataUri(characterId)} onError={handleImageError} /><span>{name.split(' ').map(part => part[0]).join('').slice(0, 2)}</span></span><b>{name}</b></button>)}</div>
             <div className="selectedCharacter"><img className="selectedThemeLogo" src={themeAssets[active.animeTheme]?.logo} alt={themeAssets[active.animeTheme]?.alt || 'Logo anime'} /><span>Personaje activo: <b>{animeCharacterName(active.animeTheme, active.animeCharacter)}</b><small>{themeAssets[active.animeTheme]?.credit}</small></span></div>
             <h3>🏆 Temporada</h3>
             {active.seasonStartedAt ? <div className="seasonBox"><b>Temporada {seasonNumber(active.seasonStartedAt)}</b><span>Iniciada el {new Date(active.seasonStartedAt + 'T12:00:00').toLocaleDateString('es-CL')}</span><small>{Math.round(seasonProgress(active.seasonStartedAt))}% del ciclo actual</small></div> : <div className="seasonBox"><b>Aún no iniciada</b><span>La temporada comenzará cuando marques tu primer hito.</span><button className="primary" onClick={markFirstMilestone}>🏆 Marcar primer hito</button></div>}
