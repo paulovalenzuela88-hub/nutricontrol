@@ -311,15 +311,35 @@ const jikanCharacterCache: Record<string, string> = {};
 // Mini avatar: usa directamente la ilustración real configurada, optimizada a 180px.
 // No hace búsquedas externas ni dispara decenas de peticiones al cargar el selector.
 function CharacterAvatar({ characterId, name, className = '' }: { characterId: string; name: string; className?: string }) {
-  // Safe fallback: no external avatar request can block or crash the app.
+  const avatarIndex: Record<string, number> = {
+    eren: 0, mikasa: 1, levi: 2, armin: 3, erwin: 4, hange: 5,
+    deku: 6, bakugo: 7, todoroki: 8, allmight: 9,
+    jinwoo: 10, chae: 11, igris: 12, beru: 13, ashborn: 14,
+    okarun: 15, momo: 16, aira: 17, jiji: 18, tanjiro: 19,
+    nezuko: 20, zenitsu: 21, inosuke: 22, yuji: 23, megumi: 24,
+    nobara: 25, gojo: 26, yuta: 27, maki: 28, toji: 29,
+    sukuna: 30, ippo: 31, takamura: 32, miyata: 33,
+    goku: 34, vegeta: 35, gohan: 36, piccolo: 37,
+    hinata: 38, kageyama: 39, oikawa: 40, bokuto: 41,
+  };
+  const index = avatarIndex[characterId];
+  const col = typeof index === 'number' ? index % 7 : -1;
+  const row = typeof index === 'number' ? Math.floor(index / 7) : -1;
+  const position = typeof index === 'number' ? `${(col / 6) * 100}% ${(row / 5) * 100}%` : 'center';
   return <span
     className={className}
     role="img"
     aria-label={name}
     title={name}
-    style={{ display: 'grid', placeItems: 'center', width: '100%', height: '100%', background: '#151b27', fontSize: '1.5em' }}
+    style={{
+      display: 'block', width: '100%', height: '100%', backgroundColor: '#151b27',
+      backgroundImage: typeof index === 'number' ? "url('/nutricontrol-avatar-sprite.webp')" : 'none',
+      backgroundSize: typeof index === 'number' ? '700% 600%' : 'auto',
+      backgroundPosition: position, backgroundRepeat: 'no-repeat', overflow: 'hidden',
+      fontSize: '1.5em',
+    }}
   >
-    {characterIcons[characterId] || '★'}
+    {typeof index !== 'number' && (characterIcons[characterId] || '★')}
   </span>;
 }
 
