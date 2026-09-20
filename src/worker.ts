@@ -51,97 +51,72 @@ async function runVision(env: Env, image: string, prompt: string, schema: any, e
   const dataUri = image.startsWith('data:') ? image : `data:image/jpeg;base64,${image}`;
   let lastError: unknown;
 
-  try {
-    const result = await (env.AI as any).run(PRIMARY_MODEL, {
-      messages: [
-        {
-          role: 'system',
-          content: 'Eres un analista nutricional visual extremadamente detallista. Inspecciona TODA la imagen antes de responder. Identifica cada alimento o componente visible, incluidos acompañamientos, salsas, aderezos, guarniciones y bebidas. No inventes elementos que no sean visualmente plausibles.',
-        },
-        {
-          role: 'user',
-          content: [
-            { type: 'text', text: prompt },
-            { type: 'image_url', image_url: { url: dataUri } },
-          ],
-        },
-      ],
-      temperature: 0.15,
-      max_tokens: 1800,
-      chat_template_kwargs: { enable_thinking: false },
-    });
-    const parsed = parseJson(getModelPayload(result));
-    if (parsed && typeof parsed === 'object') {
-      const usable = expectedKey === 'foods'
-        ? Array.isArray(parsed.foods) && parsed.foods.length > 0
-        : expectedKey === 'supplement'
-          ? !!parsed.supplement
-          : true;
-      if (usable) return parsed;
+  const isUsable = (parsed: any) => {
+    if (!parsed || typeof parsed !== 'object') return false;
+    if (expectedKey === 'foods') return Array.isArray(parsed.foods) && parsed.foods.length > 0;
+    if (expectedKey === 'supplement') return !!parsed.supplement;
+    return true;
+  };
+
+  // IMPORTANT: Cloudflare's documented vision input uses the top-level `image`
+  // field together with `messages`. Do not use `image_url` here.
+  const attempts = [
+    'Analiza esta fotografía de comida exhaustivamente. Haz primero un inventario visual completo y después estima las porciones. DEBES identificar cada componente visible por separado, incluso cantidades pequeñas, acompañamientos, salsas, aceite, aderezos, guarniciones y bebidas. Revisa toda la imagen de izquierda a derecha y de arriba abajo antes de responder. No respondas con una lista vacía si existe comida visible. Responde SOLO JSON válido compatible con el esquema solicitado.',
+    'Vuelve a inspeccionar la fotografía como una segunda revisión independiente. Busca elementos que pudiste omitir en el primer análisis: verduras, ensalada, arroz, papas, pan, queso, huevo, salsas, aderezos, aceite, bebidas y pequeñas guarniciones. Diferencia alimentos visualmente distintos. Si algo es incierto, conserva el alimento visualmente más probable y baja confidence. Nunca devuelvas una lista vacía si hay comida visible. Responde SOLO JSON válido compatible con el esquema solicitado.'
+  ];
+
+  for (const pass of attempts) {
+    try {
+      const result = await (env.AI as any).run(PRIMARY_MODEL, {
+        messages: [
+          {
+            role: 'system',
+            content: 'Eres el analista visual de NutriControl. Tu prioridad absoluta es NO OMITIR alimentos visibles. Inspecciona la imagen completa antes de responder. No inventes elementos, pero tampoco ignores componentes pequeños o parcialmente cubiertos.',
+          },
+          {
+            role: 'user',
+            content: `${prompt}\n\n${pass}`,
+          },
+        ],
+        image: dataUri,
+        temperature: 0.05,
+        max_tokens: 2600,
+        chat_template_kwargs: { enable_thinking: false },
+      });
+
+      const parsed = parseJson(getModelPayload(result));
+      if (isUsable(parsed)) return parsed;
+    } catch (error) {
+      lastError = error;
     }
-  } catch (error) {
-    lastError = error;
   }
 
-  // Gemma can occasionally return a valid JSON object with an empty foods array.
-  // Retry once with JSON mode before falling back to the second vision model.
-  try {
-    const result = await (env.AI as any).run(PRIMARY_MODEL, {
-      messages: [
-        {
-          role: 'system',
-          content: 'Eres un analista nutricional visual. DEBES mirar la imagen y devolver datos útiles. Nunca devuelvas una lista vacía si hay comida visible. Identifica todos los componentes visibles y responde únicamente con JSON válido.',
-        },
-        {
-          role: 'user',
-          content: [
-            { type: 'text', text: prompt },
-            { type: 'image_url', image_url: { url: dataUri } },
-          ],
-        },
-      ],
-      response_format: { type: 'json_object' },
-      temperature: 0.05,
-      max_tokens: 2200,
-      chat_template_kwargs: { enable_thinking: false },
-    });
-    const parsed = parseJson(getModelPayload(result));
-    if (parsed && typeof parsed === 'object') {
-      const usable = expectedKey === 'foods'
-        ? Array.isArray(parsed.foods) && parsed.foods.length > 0
-        : expectedKey === 'supplement'
-          ? !!parsed.supplement
-          : true;
-      if (usable) return parsed;
-    }
-  } catch (error) {
-    lastError = error;
-  }
-
+  // Independent vision fallback. Llama 4 Scout is natively multimodal and
+  // Cloudflare documents guided_json for structured output.
   try {
     const result = await (env.AI as any).run(FALLBACK_MODEL, {
-      prompt,
-      image_url: { url: dataUri },
+      messages: [
+        {
+          role: 'system',
+          content: 'Eres un analista nutricional visual de respaldo. Examina TODA la fotografía. Enumera cada alimento o componente visible por separado. No devuelvas una lista vacía si hay comida visible.',
+        },
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+      image: dataUri,
       guided_json: schema,
-      temperature: 0.08,
-      max_tokens: 1800,
+      temperature: 0.05,
+      max_tokens: 2600,
     });
-    return parseJson(getModelPayload(result));
+    const parsed = parseJson(getModelPayload(result));
+    if (isUsable(parsed)) return parsed;
   } catch (error) {
     lastError = error;
   }
 
-  try {
-    const result = await (env.AI as any).run(FALLBACK_MODEL, {
-      prompt: `${prompt} IMPORTANTE: responde SOLO JSON válido, sin markdown ni explicaciones.`,
-      image_url: { url: dataUri },
-      temperature: 0.05,
-      max_tokens: 1800,
-    });
-    return parseJson(getModelPayload(result));
-  } catch (error) {
-    throw (error || lastError);
-  }
+  throw (lastError || new Error('No fue posible analizar la fotografía.'));
 }
 
 async function handleAnalyzeFood(request: Request, env: Env) {
