@@ -621,6 +621,7 @@ export default function App() {
   const [date, setDate] = useState(today());
   const [tab, setTab] = useState<'hoy' | 'semana' | 'perfil'>('hoy');
   const [modal, setModal] = useState<string | null>(null);
+  const [mealSelection, setMealSelection] = useState('Desayuno');
   const [photo, setPhoto] = useState<File | null>(null);
   const [aiBusy, setAiBusy] = useState(false);
   const [aiError, setAiError] = useState('');
@@ -788,15 +789,15 @@ export default function App() {
   }
 
   function addSelectedAiFoods() {
-    if (!modal || !aiSelected.length) return;
+    if (!mealSelection || !aiSelected.length) return;
     const selected = aiSelected.map(i => aiFoods[i]).filter(Boolean);
-    updateDay(d => d.meals[modal].push(...selected.map(normalizeFood)));
+    updateDay(d => d.meals[mealSelection].push(...selected.map(normalizeFood)));
     setModal(null); setPhoto(null); setAiFoods([]); setAiSelected([]);
   }
 
   function addAllAiFoods() {
-    if (!modal || !aiFoods.length) return;
-    updateDay(d => d.meals[modal].push(...aiFoods.map(normalizeFood)));
+    if (!mealSelection || !aiFoods.length) return;
+    updateDay(d => d.meals[mealSelection].push(...aiFoods.map(normalizeFood)));
     setModal(null); setPhoto(null); setAiFoods([]); setAiSelected([]);
   }
 
@@ -1022,7 +1023,7 @@ export default function App() {
 
             <div className="sectionTitle"><h2>Comidas</h2><span>{Math.round(totals.kcal)} / {targets.calories} kcal</span></div>
             <section className="meals">
-              {meals.map(m => <div className="meal card" key={m}><div className="mealContent"><h3>{m}</h3>{day.meals[m].length ? <div className="foodList">{day.meals[m].map((f, i) => <div className="foodItem" key={i}><div><b>{f.name}</b><small>{Math.round(f.kcal)} kcal · P {Math.round(f.p)} g · C {Math.round(f.c)} g · G {Math.round(f.f)} g</small></div><button className="iconDanger" onClick={() => deleteFood(m, i)} title="Eliminar alimento">🗑️</button></div>)}</div> : <p>Sin registrar</p>}</div><button onClick={() => { setModal(m); setAiFoods([]); setAiSelected([]); setAiError(''); setPhoto(null); }}>＋ Añadir</button></div>)}
+              {meals.map(m => <div className="meal card" key={m}><div className="mealContent"><h3>{m}</h3>{day.meals[m].length ? <div className="foodList">{day.meals[m].map((f, i) => <div className="foodItem" key={i}><div><b>{f.name}</b><small>{Math.round(f.kcal)} kcal · P {Math.round(f.p)} g · C {Math.round(f.c)} g · G {Math.round(f.f)} g</small></div><button className="iconDanger" onClick={() => deleteFood(m, i)} title="Eliminar alimento">🗑️</button></div>)}</div> : <p>Sin registrar</p>}</div><button onClick={() => { setModal(m); setMealSelection(m); setAiFoods([]); setAiSelected([]); setAiError(''); setPhoto(null); }}>＋ Añadir</button></div>)}
             </section>
           </>
         )}
@@ -1079,7 +1080,7 @@ export default function App() {
         </div>
       </main>
 
-      {modal && <div className="overlay"><div className="modal"><button className="close" onClick={() => setModal(null)}>×</button><h2>📸 Añadir a {modal}</h2><div className="drop"><div className="photoPickerActions"><label className="primary photoPickerButton">📷 Tomar foto<input type="file" accept="image/*" capture="environment" onChange={e => setPhoto(e.target.files?.[0] || null)} /></label><label className="photoPickerButton">🖼️ Elegir de galería<input type="file" accept="image/*" onChange={e => setPhoto(e.target.files?.[0] || null)} /></label></div>{photo && <p>{photo.name}</p>}<button className="primary" disabled={!photo || aiBusy} onClick={analyze}>{aiBusy ? 'Analizando…' : '✨ Analizar con IA'}</button></div>{aiError && <div className="error">{aiError}</div>}{aiFoods.length > 0 && <><div className="aiHeader"><h3>Resultado de IA</h3><div className="aiBulkActions"><button onClick={addSelectedAiFoods} disabled={!aiSelected.length}>Añadir seleccionados ({aiSelected.length})</button><button className="primary" onClick={addAllAiFoods}>Añadir todos ({aiFoods.length})</button></div></div><p className="aiHint">Puedes añadir uno, seleccionar varios o incorporar todos los alimentos detectados de una vez.</p>{aiFoods.map((f, i) => { const selected = aiSelected.includes(i); return <div className={'airow' + (selected ? ' selected' : '')} key={i}><label className="aiSelect"><input type="checkbox" checked={selected} onChange={() => toggleAiFood(i)} /></label><div><b>{f.name}</b><small>{Math.round(f.grams)} g · confianza {Math.round((f.confidence || 0) * 100)}%</small></div><strong>{Math.round(f.kcal)} kcal</strong><button onClick={() => addFood(modal, f)}>Añadir</button></div>; })}</>}<div className="manual"><p>También puedes registrar alimentos manualmente.</p><button onClick={() => { const n = prompt('Alimento'); const k = Number(prompt('Calorías') || 0); const p = Number(prompt('Proteína (g)') || 0); const c = Number(prompt('Carbohidratos (g)') || 0); const f = Number(prompt('Grasas (g)') || 0); if (n && k > 0) addFood(modal, { name: n, grams: 0, kcal: k, p, c, f }); }}>Entrada manual</button></div></div></div>}
+      {modal && <div className="overlay"><div className="modal"><button className="close" onClick={() => setModal(null)}>×</button><h2>📸 Registrar comida</h2><label className="formField"><span>¿Qué comida estás registrando?</span><select value={mealSelection} onChange={e => setMealSelection(e.target.value)}>{meals.map(m => <option key={m} value={m}>{m}</option>)}</select></label><div className="drop"><div className="photoPickerActions"><label className="primary photoPickerButton">📷 Tomar foto<input type="file" accept="image/*" capture="environment" onChange={e => setPhoto(e.target.files?.[0] || null)} /></label><label className="photoPickerButton">🖼️ Elegir de galería<input type="file" accept="image/*" onChange={e => setPhoto(e.target.files?.[0] || null)} /></label></div>{photo && <p>{photo.name}</p>}<button className="primary" disabled={!photo || aiBusy} onClick={analyze}>{aiBusy ? 'Analizando…' : '✨ Analizar con IA'}</button></div>{aiError && <div className="error">{aiError}</div>}{aiFoods.length > 0 && <><div className="aiHeader"><h3>Resultado de IA</h3><div className="aiBulkActions"><button onClick={addSelectedAiFoods} disabled={!aiSelected.length}>Añadir seleccionados ({aiSelected.length})</button><button className="primary" onClick={addAllAiFoods}>Añadir todos ({aiFoods.length})</button></div></div><p className="aiHint">Puedes añadir uno, seleccionar varios o incorporar todos los alimentos detectados de una vez.</p>{aiFoods.map((f, i) => { const selected = aiSelected.includes(i); return <div className={'airow' + (selected ? ' selected' : '')} key={i}><label className="aiSelect"><input type="checkbox" checked={selected} onChange={() => toggleAiFood(i)} /></label><div><b>{f.name}</b><small>{Math.round(f.grams)} g · confianza {Math.round((f.confidence || 0) * 100)}%</small></div><strong>{Math.round(f.kcal)} kcal</strong><button onClick={() => addFood(modal, f)}>Añadir</button></div>; })}</>}<div className="manual"><p>También puedes registrar alimentos manualmente.</p><button onClick={() => { const n = prompt('Alimento'); const k = Number(prompt('Calorías') || 0); const p = Number(prompt('Proteína (g)') || 0); const c = Number(prompt('Carbohidratos (g)') || 0); const f = Number(prompt('Grasas (g)') || 0); if (n && k > 0) addFood(modal, { name: n, grams: 0, kcal: k, p, c, f }); }}>Entrada manual</button></div></div></div>}
 
       {exerciseOpen && <div className="overlay"><div className="modal smallModal"><button className="close" onClick={() => setExerciseOpen(false)}>×</button><h2>🏃 Registrar ejercicio</h2><label className="formField"><span>Actividad</span><select value={exerciseType} onChange={e => setExerciseType(e.target.value)}>{exerciseTypes.map(([name]) => <option key={name}>{name}</option>)}</select></label><label className="formField"><span>Duración (minutos)</span><input type="number" min="1" max="600" value={exerciseDuration} onChange={e => setExerciseDuration(Number(e.target.value))} /></label><label className="formField"><span>Intensidad</span><select value={exerciseIntensity} onChange={e => setExerciseIntensity(e.target.value as any)}><option value="suave">Suave</option><option value="moderada">Moderada</option><option value="alta">Alta</option></select></label><label className="formField"><span>Foto o pantallazo del entrenamiento (opcional)</span><input type="file" accept="image/*" capture="environment" onChange={e => setExercisePhoto(e.target.files?.[0] || null)} /></label><p className="muted">Calorías estimadas según peso, duración, actividad e intensidad. La imagen queda asociada al registro.</p><button className="primary fullButton" onClick={addExercise}>＋ Guardar ejercicio</button></div></div>}
 
