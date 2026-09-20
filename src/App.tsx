@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { api, image } from '@appdeploy/client';
+import { api, image } from './appdeployClient';
 
 type Micros = {
   fiber: number;
