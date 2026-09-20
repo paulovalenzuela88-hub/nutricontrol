@@ -28,3 +28,16 @@ header{height:68px;padding:0 28px;margin-left:-218px;padding-left:244px;backgrou
 
 /* Anime theme cards intentionally use the same banner artwork as the dashboard hero. */
 .characterBadge img,.characterPortrait img,.profileRailImage img,.railQuote img{object-position:center top}
+
+
+/* Miniaturas reales de personajes en el selector */
+.characterGrid{grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.characterGrid button{min-height:104px;flex-direction:column;justify-content:center;align-items:center;gap:7px;padding:9px 6px;text-align:center;position:relative}
+.characterGrid button b{font-size:11px;line-height:1.15;font-weight:700}
+.characterBadge{flex:0 0 56px;width:56px;height:56px;border-radius:50%;border:2px solid #53627d;box-shadow:0 5px 14px #0007}
+.characterGrid .characterActive{border-color:#7ee56d;background:#17261a;box-shadow:0 0 0 1px #7ee56d55,0 6px 18px #0007}
+.characterGrid .characterActive .characterBadge{border-color:#7ee56d;box-shadow:0 0 0 2px #7ee56d33,0 5px 14px #0008}
+.characterGrid .characterActive:after{content:'✓';position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;background:#7ee56d;color:#102015;font-size:11px;font-weight:900}
+@media(max-width:900px){.characterGrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:560px){.characterGrid{grid-template-columns:repeat(3,minmax(0,1fr))}.characterBadge{width:52px;height:52px;flex-basis:52px}}
+@media(max-width:450px){.characterGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
