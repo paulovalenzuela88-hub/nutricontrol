@@ -35,14 +35,14 @@ function toDataUri(image: string, mimeType = 'image/jpeg') {
   return `data:${mimeType};base64,${image}`;
 }
 
-async function runVision(env: Env, image: string, question: string) {
+async function runVision(env: Env, image: string, question: string, maxTokens = 1800) {
   const response: any = await env.AI.run(MODEL, {
     task: 'query',
     image,
     question,
     reasoning: false,
-    temperature: 0.1,
-    max_tokens: 700,
+    temperature: 0,
+    max_tokens: maxTokens,
   });
   return String(response?.answer || '');
 }
@@ -51,15 +51,24 @@ async function handleAnalyzeFood(request: Request, env: Env) {
   const body = await request.json() as { image?: string; mimeType?: string };
   if (!body.image || typeof body.image !== 'string') return json({ error: 'No se recibió la imagen.' }, 400);
 
-  const answer = await runVision(env, toDataUri(body.image, body.mimeType), `Analiza esta foto de comida para una app de nutrición. Identifica SOLO los alimentos visibles y estima sus cantidades. Responde EXCLUSIVAMENTE con JSON válido, sin markdown ni explicaciones, con esta estructura:
+  const answer = await runVision(env, toDataUri(body.image, body.mimeType), `Analiza esta foto de comida para una app de nutrición. Identifica SOLO los alimentos claramente visibles y estima la porción visible. Devuelve ÚNICAMENTE un objeto JSON válido. No uses markdown, no uses texto antes ni después del JSON y no omitas ninguna llave. Debe comenzar con { y terminar con }.
+Estructura exacta:
 {"foods":[{"name":"nombre del alimento en español","grams":0,"kcal":0,"p":0,"c":0,"f":0,"confidence":0.0,"micros":{"fiber":0,"sugar":0,"sodium":0,"calcium":0,"iron":0,"potassium":0,"magnesium":0,"vitaminC":0,"vitaminD":0,"vitaminB12":0}}]}
-Usa gramos y kcal aproximados por la porción visible. confidence debe estar entre 0 y 1. Si no puedes identificar comida con suficiente seguridad, devuelve {"foods":[]}. No inventes alimentos que no se vean.`);
-  const parsed = extractJson(answer);
+Todos los valores numéricos deben ser números, no texto. confidence va de 0 a 1. Usa estimaciones razonables para la porción visible. Si no puedes identificar comida con suficiente seguridad, devuelve {"foods":[]}. No inventes alimentos que no se vean.`, 1800);
+  let parsed: any;
+  try {
+    parsed = extractJson(answer);
+  } catch {
+    const retry = await runVision(env, toDataUri(body.image, body.mimeType), `Convierte el análisis de esta foto en JSON válido. Responde SOLO JSON, sin markdown ni explicaciones. Usa exactamente esta estructura y completa todos los campos numéricos:
+{"foods":[{"name":"alimento en español","grams":0,"kcal":0,"p":0,"c":0,"f":0,"confidence":0.0,"micros":{"fiber":0,"sugar":0,"sodium":0,"calcium":0,"iron":0,"potassium":0,"magnesium":0,"vitaminC":0,"vitaminD":0,"vitaminB12":0}}]}
+Si no hay comida claramente visible, devuelve {"foods":[]}. No inventes alimentos.`, 2200);
+    parsed = extractJson(retry);
+  }
   return json({ foods: Array.isArray(parsed?.foods) ? parsed.foods : [] });
 }
 
 async function handleAnalyzeSupplement(request: Request, env: Env) {
-  const body = await request.json() as { image?: string };
+  const body = await request.json() as { image?: string; mimeType?: string };
   if (!body.image || typeof body.image !== 'string') return json({ error: 'No se recibió la imagen.' }, 400);
 
   const answer = await runVision(env, toDataUri(body.image, body.mimeType), `Lee esta etiqueta de suplemento o vitamina. Responde EXCLUSIVAMENTE con JSON válido, sin markdown ni explicaciones, con esta estructura:
