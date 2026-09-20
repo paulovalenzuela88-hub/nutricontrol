@@ -1,0 +1,17 @@
+name: Package NutriControl
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create ZIP
+        run: zip -r NutriControl-latest.zip . -x '.git/*' 'node_modules/*'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NutriControl-latest
+          path: NutriControl-latest.zip
