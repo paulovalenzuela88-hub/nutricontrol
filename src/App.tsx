@@ -322,26 +322,46 @@ function CharacterAvatar({ characterId, name, className = '' }: { characterId: s
     nobara: 25, gojo: 26, yuta: 27, maki: 28, toji: 29,
     sukuna: 30, ippo: 31, takamura: 32, miyata: 33,
     goku: 34, vegeta: 35, gohan: 36, piccolo: 37,
-    hinata: 38, kageyama: 39, oikawa: 40, bokuto: 41,
+    hinata: 38, kageyama: 39,
   };
   const index = avatarIndex[characterId];
-  const col = typeof index === 'number' ? index % 8 : -1;
-  const row = typeof index === 'number' ? Math.floor(index / 8) : -1;
-  const position = typeof index === 'number' ? `${(col / 7) * 100}% ${(row / 4) * 100}%` : 'center';
+  const hasAvatar = typeof index === 'number';
+  const col = hasAvatar ? index % 8 : 0;
+  const row = hasAvatar ? Math.floor(index / 8) : 0;
   return <span
     className={className}
     role="img"
     aria-label={name}
     title={name}
     style={{
-      display: 'block', width: '100%', height: '100%', backgroundColor: '#151b27',
-      backgroundImage: typeof index === 'number' ? 'url(' + avatarSpriteUrl + ')' : 'none',
-      backgroundSize: typeof index === 'number' ? '800% 500%' : 'auto',
-      backgroundPosition: position, backgroundRepeat: 'no-repeat', overflow: 'hidden',
+      position: 'relative',
+      display: 'block',
+      width: '100%',
+      height: '100%',
+      backgroundColor: '#151b27',
+      overflow: 'hidden',
       fontSize: '1.5em',
     }}
   >
-    {typeof index !== 'number' && (characterIcons[characterId] || '★')}
+    {hasAvatar ? <img
+      src={avatarSpriteUrl}
+      alt=""
+      aria-hidden="true"
+      draggable={false}
+      style={{
+        position: 'absolute',
+        display: 'block',
+        width: '800%',
+        height: '500%',
+        maxWidth: 'none',
+        maxHeight: 'none',
+        left: `-${col * 100}%`,
+        top: `-${row * 100}%`,
+        objectFit: 'fill',
+        userSelect: 'none',
+        pointerEvents: 'none',
+      }}
+    /> : (characterIcons[characterId] || '★')}
   </span>;
 }
 
