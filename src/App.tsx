@@ -593,7 +593,39 @@ function loadState(): AppState {
 }
 
 function saveState(state: AppState) {
-  localStorage.setItem(key, JSON.stringify(state));
+  const write = (value: AppState) => localStorage.setItem(key, JSON.stringify(value));
+
+  try {
+    write(state);
+    return;
+  } catch (error) {
+    // Long-term use: meal history is important, while exercise/supplement
+    // photos are optional attachments and can consume the browser's localStorage.
+    // Retry without those heavy image payloads before giving up.
+    console.warn('NutriControl storage quota reached; removing optional attachments.', error);
+  }
+
+  try {
+    const lightweight: AppState = {
+      ...state,
+      profiles: state.profiles.map(profile => ({
+        ...profile,
+        days: Object.fromEntries(
+          Object.entries(profile.days).map(([dayKey, day]) => [
+            dayKey,
+            {
+              ...day,
+              exercises: day.exercises.map(({ image: _image, ...exercise }) => exercise),
+              supplements: day.supplements.map(({ image: _image, ...supplement }) => supplement),
+            },
+          ])
+        ),
+      })),
+    };
+    write(lightweight);
+  } catch (error) {
+    console.error('NutriControl could not persist the current state.', error);
+  }
 }
 
 function seasonNumber(startedAt?: string) {
