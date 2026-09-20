@@ -313,43 +313,21 @@ const jikanCharacterCache: Record<string, string> = {};
 // Mini avatar: usa directamente la ilustración real configurada, optimizada a 180px.
 // No hace búsquedas externas ni dispara decenas de peticiones al cargar el selector.
 function CharacterAvatar({ characterId, name, className = '' }: { characterId: string; name: string; className?: string }) {
-  const avatarIndex: Record<string, number> = {
-    eren: 0, mikasa: 1, levi: 2, armin: 3, erwin: 4, hange: 5,
-    deku: 6, bakugo: 7, todoroki: 8, allmight: 9,
-    jinwoo: 10, chae: 11, igris: 12, beru: 13, ashborn: 14,
-    okarun: 15, momo: 16, aira: 17, jiji: 18, tanjiro: 19,
-    nezuko: 20, zenitsu: 21, inosuke: 22, yuji: 23, megumi: 24,
-    nobara: 25, gojo: 26, yuta: 27, maki: 28, toji: 29,
-    sukuna: 30, ippo: 31, takamura: 32, miyata: 33,
-    goku: 34, vegeta: 35, gohan: 36, piccolo: 37,
-    hinata: 38, kageyama: 39,
-  };
-  const index = avatarIndex[characterId];
-  if (typeof index !== 'number') {
-    return <span className={className} role="img" aria-label={name} title={name}
-      style={{ display:'block', width:'100%', height:'100%', background:'#151b27', textAlign:'center', lineHeight:1.8 }}>
-      {characterIcons[characterId] || '★'}
-    </span>;
-  }
-
-  // The source sprite is a fixed 8x5 grid (768x480).
-  // Each avatar occupies an exact 96x96 square.
-  const col = index % 8;
-  const row = Math.floor(index / 8);
-  const cellWidth = 768 / 8;
-  const cellHeight = 480 / 5;
-  const x = col * cellWidth;
-  const y = row * cellHeight;
-
-  return <svg className={className} role="img" aria-label={name} title={name}
-    viewBox={`${x} ${y} ${cellWidth} ${cellHeight}`}
-    preserveAspectRatio="xMidYMid slice"
-    style={{ display:'block', width:'100%', height:'100%', background:'#151b27', overflow:'hidden' }}>
-    <image href={avatarSpriteUrl} x="0" y="0" width="768" height="480"
-      preserveAspectRatio="none" aria-hidden="true" />
-  </svg>;
+  return <span className={className} role="img" aria-label={name} title={name}
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+      height: '100%',
+      background: '#151b27',
+      borderRadius: 'inherit',
+      fontSize: '1.8em',
+      lineHeight: 1,
+    }}>
+    {characterIcons[characterId] || '★'}
+  </span>;
 }
-
 function dailyCharacterMessage(theme: string, character: string, day: Day, targets: Targets, level: number) {
   const keyName = character || defaultAnimeCharacter(theme);
   const proteinPct = targets.p ? day.meals ? Object.values(day.meals).flat().reduce((s, f) => s + f.p, 0) / targets.p : 0 : 0;  const calories = day.meals ? Object.values(day.meals).flat().reduce((s, f) => s + f.kcal, 0) : 0;
