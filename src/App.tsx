@@ -311,26 +311,16 @@ const jikanCharacterCache: Record<string, string> = {};
 // Mini avatar: usa directamente la ilustración real configurada, optimizada a 180px.
 // No hace búsquedas externas ni dispara decenas de peticiones al cargar el selector.
 function CharacterAvatar({ characterId, name, className = '' }: { characterId: string; name: string; className?: string }) {
-  const [loaded, setLoaded] = useState(false);
-  const source = characterImages[characterId] || '';
-  const staticImage = characterDisplayImage(source);
-  return (
-    <span className={className} style={{ position: 'relative', overflow: 'hidden', display: 'block' }}>
-      {!loaded && <span aria-hidden="true" style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', fontSize: 22, background: '#151b27' }}>{characterIcons[characterId] || '★'}</span>}
-      {staticImage && <img
-        src={staticImage}
-        alt={name}
-        width={120}
-        height={120}
-        loading="lazy"
-        decoding="async"
-        referrerPolicy="no-referrer"
-        style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: loaded ? 1 : 0, transition: 'opacity .15s' }}
-        onLoad={() => setLoaded(true)}
-        onError={(e) => { e.currentTarget.style.display = 'none'; }}
-      />}
-    </span>
-  );
+  // Safe fallback: no external avatar request can block or crash the app.
+  return <span
+    className={className}
+    role="img"
+    aria-label={name}
+    title={name}
+    style={{ display: 'grid', placeItems: 'center', width: '100%', height: '100%', background: '#151b27', fontSize: '1.5em' }}
+  >
+    {characterIcons[characterId] || '★'}
+  </span>;
 }
 
 function dailyCharacterMessage(theme: string, character: string, day: Day, targets: Targets, level: number) {
