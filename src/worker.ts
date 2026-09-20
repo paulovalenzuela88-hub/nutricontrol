@@ -51,20 +51,44 @@ async function handleAnalyzeFood(request: Request, env: Env) {
   const body = await request.json() as { image?: string; mimeType?: string };
   if (!body.image || typeof body.image !== 'string') return json({ error: 'No se recibió la imagen.' }, 400);
 
-  const answer = await runVision(env, toDataUri(body.image, body.mimeType), `Analiza esta foto de comida para una app de nutrición. Identifica SOLO los alimentos claramente visibles y estima la porción visible. Devuelve ÚNICAMENTE un objeto JSON válido. No uses markdown, no uses texto antes ni después del JSON y no omitas ninguna llave. Debe comenzar con { y terminar con }.
-Estructura exacta:
-{"foods":[{"name":"nombre del alimento en español","grams":0,"kcal":0,"p":0,"c":0,"f":0,"confidence":0.0,"micros":{"fiber":0,"sugar":0,"sodium":0,"calcium":0,"iron":0,"potassium":0,"magnesium":0,"vitaminC":0,"vitaminD":0,"vitaminB12":0}}]}
-Todos los valores numéricos deben ser números, no texto. confidence va de 0 a 1. Usa estimaciones razonables para la porción visible. Si no puedes identificar comida con suficiente seguridad, devuelve {"foods":[]}. No inventes alimentos que no se vean.`, 1800);
-  let parsed: any;
-  try {
-    parsed = extractJson(answer);
-  } catch {
-    const retry = await runVision(env, toDataUri(body.image, body.mimeType), `Convierte el análisis de esta foto en JSON válido. Responde SOLO JSON, sin markdown ni explicaciones. Usa exactamente esta estructura y completa todos los campos numéricos:
-{"foods":[{"name":"alimento en español","grams":0,"kcal":0,"p":0,"c":0,"f":0,"confidence":0.0,"micros":{"fiber":0,"sugar":0,"sodium":0,"calcium":0,"iron":0,"potassium":0,"magnesium":0,"vitaminC":0,"vitaminD":0,"vitaminB12":0}}]}
-Si no hay comida claramente visible, devuelve {"foods":[]}. No inventes alimentos.`, 2200);
-    parsed = extractJson(retry);
+  const prompt = `Analiza esta foto de comida para una app de nutrición. Identifica SOLO los alimentos claramente visibles y estima la porción que se ve.
+Responde SOLO con una línea por alimento, sin títulos, sin explicaciones y sin markdown.
+Formato exacto:
+FOOD|nombre en español|gramos|kcal|proteína_g|carbohidratos_g|grasas_g|fibra_g|azúcar_g|sodio_mg|calcio_mg|hierro_mg|potasio_mg|magnesio_mg|vitaminaC_mg|vitaminaD_mcg|vitaminaB12_mcg|confianza
+Ejemplo:
+FOOD|pechuga de pollo a la plancha|180|297|56|0|7|0|0|120|20|1|450|35|0|0|0.3|0.90
+Reglas: todos los campos numéricos deben ser números. Confianza entre 0 y 1. Usa valores aproximados para la porción visible. No inventes alimentos. Si no hay comida identificable, responde exactamente: NO_FOOD.`;
+
+  const answer = await runVision(env, toDataUri(body.image, body.mimeType), prompt, 1400);
+
+  function parseFoodLines(text: string): any[] {
+    const foods: any[] = [];
+    for (const raw of text.split(/\\r?\\n/)) {
+      const line = raw.trim().replace(/^\`+|\`+$/g, '');
+      if (!line.toUpperCase().startsWith('FOOD|')) continue;
+      const parts = line.split('|').map(x => x.trim());
+      if (parts.length < 18) continue;
+      const nums = parts.slice(2).map(Number);
+      if (nums.some(n => !Number.isFinite(n))) continue;
+      const [grams,kcal,p,c,f,fiber,sugar,sodium,calcium,iron,potassium,magnesium,vitaminC,vitaminD,vitaminB12,confidence] = nums;
+      foods.push({
+        name: parts[1],
+        grams, kcal, p, c, f, confidence,
+        micros: { fiber, sugar, sodium, calcium, iron, potassium, magnesium, vitaminC, vitaminD, vitaminB12 }
+      });
+    }
+    return foods;
   }
-  return json({ foods: Array.isArray(parsed?.foods) ? parsed.foods : [] });
+
+  let foods = parseFoodLines(answer);
+  if (!foods.length) {
+    const retry = await runVision(env, toDataUri(body.image, body.mimeType), `Mira nuevamente esta foto. Responde ÚNICAMENTE con líneas FOOD separadas por saltos de línea. NO escribas explicaciones.
+FOOD|nombre|gramos|kcal|proteína|carbohidratos|grasas|fibra|azúcar|sodio_mg|calcio_mg|hierro_mg|potasio_mg|magnesio_mg|vitaminaC_mg|vitaminaD_mcg|vitaminaB12_mcg|confianza
+Si hay varios alimentos, una línea FOOD por cada uno. Si no puedes identificar ninguno, responde NO_FOOD. Todos los números deben ser números.`, 1400);
+    foods = parseFoodLines(retry);
+  }
+
+  return json({ foods });
 }
 
 async function handleAnalyzeSupplement(request: Request, env: Env) {
