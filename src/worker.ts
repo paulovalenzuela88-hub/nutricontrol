@@ -48,13 +48,32 @@ const microsSchema = {
 
 async function runVision(env: Env, image: string, prompt: string, schema: any) {
   const dataUri = image.startsWith('data:') ? image : `data:image/jpeg;base64,${image}`;
-  return await env.AI.run(MODEL, {
-    prompt,
-    image_url: { url: dataUri },
-    guided_json: schema,
-    temperature: 0.1,
-    max_tokens: 900,
-  }) as any;
+  let firstError: unknown;
+  try {
+    return await env.AI.run(MODEL, {
+      prompt,
+      image_url: { url: dataUri },
+      guided_json: schema,
+      temperature: 0.1,
+      max_tokens: 1200,
+    }) as any;
+  } catch (error) {
+    firstError = error;
+  }
+
+  // Segundo intento: si el modelo rechaza el esquema guiado, pedimos JSON
+  // estricto con la misma imagen. Esto evita que un fallo puntual de
+  // structured output deje inutilizable el análisis.
+  try {
+    return await env.AI.run(MODEL, {
+      prompt: `${prompt} IMPORTANTE: responde SOLO JSON válido, sin markdown ni explicaciones.`,
+      image_url: { url: dataUri },
+      temperature: 0.05,
+      max_tokens: 1200,
+    }) as any;
+  } catch {
+    throw firstError;
+  }
 }
 
 async function handleAnalyzeFood(request: Request, env: Env) {
