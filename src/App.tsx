@@ -157,16 +157,16 @@ const themeAssets: Record<string, { logo: string; alt: string; credit: string }>
 };
 
 const themeBanners: Record<string, string> = {
-  attackontitan: 'https://images5.alphacoders.com/613/613179.jpg',
-  myhero: 'https://images5.alphacoders.com/102/1023028.jpg',
+  attackontitan: 'https://wallpapers.com/images/hd/aesthetic-levi-and-eren-4k-n0va5oqrpe5sbkz0.jpg',
+  myhero: 'https://4kwallpapers.com/images/walls/thumbs_2t/9151.png',
   chainsaw: 'https://images8.alphacoders.com/115/thumb-1920-1159925.jpg',
   sololeveling: 'https://images2.alphacoders.com/139/thumb-1920-1394671.png',
-  demonslayer: 'https://images5.alphacoders.com/104/1047280.jpg',
-  jujutsu: 'https://images5.alphacoders.com/117/1170340.jpg',
+  demonslayer: 'https://4kwallpapers.com/images/wallpapers/tanjiro-kamado-1920x1080-9322.jpg',
+  jujutsu: 'https://images4.alphacoders.com/114/thumb-1920-1141582.jpg',
   hajime: 'https://images5.alphacoders.com/332/thumb-1920-332648.jpg',
-  dragonball: 'https://images5.alphacoders.com/922/922388.jpg',
+  dragonball: 'https://images.hdqwalls.com/download/dragon-ball-z-super-saiyan-blue-5k-gc-1920x1080.jpg?dl=1',
   dandadan: 'https://images8.alphacoders.com/137/thumb-1920-1379351.png',
-  haikyuu: 'https://images5.alphacoders.com/938/938985.jpg',
+  haikyuu: 'https://cdn.theanimegallery.com/theanimegallery/7e180d2a-688c-4a29-a80e-f4bdb57dce28-haikyuu-wallpaper.webp',
 };
 
 const proxiedImage = (url: string) => url ? `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=1600&fit=inside&q=88` : '';
@@ -174,8 +174,26 @@ const characterProxy = (url: string) => url ? `https://images.weserv.nl/?url=${e
 const characterDisplayImage = (url: string) => url ? characterProxy(url) : '';
 
 const characterAvatarDataUri = (character: string) => {
-  const initials = character.slice(0, 2).toUpperCase();
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#172235"/><stop offset="1" stop-color="#5b2434"/></linearGradient></defs><rect width="320" height="320" rx="160" fill="url(#g)"/><circle cx="160" cy="125" r="68" fill="#d4a07b"/><path d="M72 118 Q160 35 248 118 Q226 76 160 72 Q94 76 72 118" fill="#182030"/><text x="160" y="255" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="54" font-weight="800">${initials}</text></svg>`;
+  const palettes = [
+    ['#182235', '#67d6ff', '#f1c7a8'], ['#27182b', '#ff5d8f', '#f0c4a5'],
+    ['#17261d', '#6ee7b7', '#e7bc9e'], ['#2a2017', '#ffbd59', '#edc19e'],
+    ['#1d1b31', '#a78bfa', '#efc4a8'], ['#241717', '#ff6b6b', '#efc3a4'],
+    ['#16242a', '#56cfe1', '#eac1a3'], ['#241f18', '#f59e0b', '#efc3a4'],
+  ];
+  let hash = 0;
+  for (let i = 0; i < character.length; i++) hash = (hash * 31 + character.charCodeAt(i)) >>> 0;
+  const [bg, hair, skin] = palettes[hash % palettes.length];
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320">
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${bg}"/><stop offset="1" stop-color="#0b1020"/></linearGradient></defs>
+    <rect width="320" height="320" rx="160" fill="url(#g)"/>
+    <circle cx="160" cy="132" r="72" fill="${skin}"/>
+    <path d="M82 125 Q92 48 160 58 Q228 48 238 125 L218 105 L205 124 L188 91 L170 119 L149 88 L128 119 L106 96 Z" fill="${hair}"/>
+    <ellipse cx="133" cy="139" rx="9" ry="13" fill="#172033"/><ellipse cx="187" cy="139" rx="9" ry="13" fill="#172033"/>
+    <circle cx="135" cy="136" r="3" fill="#fff"/><circle cx="189" cy="136" r="3" fill="#fff"/>
+    <path d="M145 174 Q160 184 175 174" fill="none" stroke="#7d4251" stroke-width="5" stroke-linecap="round"/>
+    <path d="M72 286 Q84 220 160 214 Q236 220 248 286 Z" fill="${hair}"/>
+    <path d="M112 222 Q160 248 208 222 L218 286 L102 286 Z" fill="#101827"/>
+  </svg>`;
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 };
 
@@ -961,7 +979,7 @@ export default function App() {
             <div className="themeGrid">{animeThemes.map(([theme,name,desc]) => <button key={theme} className={active.animeTheme === theme ? 'themeActive' : ''} onClick={() => changeAnimeTheme(theme)}><div className="themeBanner"><img src={proxiedImage(themeBanners[theme])} alt={name} referrerPolicy="no-referrer" data-original-src={themeBanners[theme]} onError={handleImageError} /><div className="themeBannerShade" /><div className="themeBannerText"><b>{name}</b><small>{desc}</small><em>NUTRICONTROL · RPG SEASON</em></div></div></button>)}</div>
             <h3>🧑‍🎤 Personaje</h3>
             <p>Elige el personaje que representará este perfil. Puedes cambiarlo cuando quieras.</p>
-            <div className="characterGrid">{(animeCharacters[active.animeTheme] || []).map(([characterId, name]) => <button key={characterId} className={active.animeCharacter === characterId ? 'characterActive' : ''} onClick={() => changeAnimeCharacter(characterId)}><span className="characterBadge"><img src={characterDisplayImage(characterImages[characterId] || themeCharacterImages[active.animeTheme])} alt={name} referrerPolicy="no-referrer" data-original-src={characterImages[characterId] || themeCharacterImages[active.animeTheme]} data-character-key={characterId} data-image-stage="0" data-character-fallback={characterAvatarDataUri(characterId)} onError={handleImageError} /><span>{name.split(' ').map(part => part[0]).join('').slice(0, 2)}</span></span><b>{name}</b></button>)}</div>
+            <div className="characterGrid">{(animeCharacters[active.animeTheme] || []).map(([characterId, name]) => <button key={characterId} className={active.animeCharacter === characterId ? 'characterActive' : ''} onClick={() => changeAnimeCharacter(characterId)}><span className="characterBadge"><img src={characterDisplayImage(characterImages[characterId] || themeCharacterImages[active.animeTheme])} alt={name} referrerPolicy="no-referrer" data-original-src={characterImages[characterId] || themeCharacterImages[active.animeTheme]} data-character-key={characterId} data-image-stage="0" data-character-fallback={characterAvatarDataUri(characterId)} onError={handleImageError} /></span><b>{name}</b></button>)}</div>
             <div className="selectedCharacter"><img className="selectedThemeLogo" src={themeAssets[active.animeTheme]?.logo} alt={themeAssets[active.animeTheme]?.alt || 'Logo anime'} /><span>Personaje activo: <b>{animeCharacterName(active.animeTheme, active.animeCharacter)}</b><small>{themeAssets[active.animeTheme]?.credit}</small></span></div>
             <h3>🏆 Temporada</h3>
             {active.seasonStartedAt ? <div className="seasonBox"><b>Temporada {seasonNumber(active.seasonStartedAt)}</b><span>Iniciada el {new Date(active.seasonStartedAt + 'T12:00:00').toLocaleDateString('es-CL')}</span><small>{Math.round(seasonProgress(active.seasonStartedAt))}% del ciclo actual</small></div> : <div className="seasonBox"><b>Aún no iniciada</b><span>La temporada comenzará cuando marques tu primer hito.</span><button className="primary" onClick={markFirstMilestone}>🏆 Marcar primer hito</button></div>}
@@ -985,7 +1003,7 @@ export default function App() {
           <aside className="rightRail">
             <div className="railDate"><span>🔔</span><b>{new Date(date + 'T12:00:00').toLocaleDateString('es-CL', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}</b></div>
             <section className="profileRail">
-              <div className="profileRailImage"><img src={currentCharacterImage} alt={currentCharacterName} onError={e => { e.currentTarget.style.display = 'none'; }} /><button onClick={() => setTab('perfil')} aria-label="Editar personaje">✎</button></div>
+              <div className="profileRailImage"><img src={characterDisplayImage(currentCharacterImage)} alt={currentCharacterName} referrerPolicy="no-referrer" data-original-src={currentCharacterImage} data-character-key={active?.animeCharacter || defaultAnimeCharacter(active?.animeTheme || 'hajime')} data-image-stage="0" data-character-fallback={characterAvatarDataUri(active?.animeCharacter || 'ippo')} onError={handleImageError} /><button onClick={() => setTab('perfil')} aria-label="Editar personaje">✎</button></div>
               <h3>{currentCharacterName}</h3><p>Miembro desde {active?.seasonStartedAt ? new Date(active.seasonStartedAt + 'T12:00:00').toLocaleDateString('es-CL') : 'hoy'}</p>
               <div className="railSeason"><b>TEMPORADA {active?.seasonStartedAt ? seasonNumber(active.seasonStartedAt) : 1}</b><span>Día {active?.seasonStartedAt ? seasonDays : 1} de 90</span></div>
               <div className="railBar"><i style={{ width: seasonPct + '%' }} /></div>
@@ -993,7 +1011,7 @@ export default function App() {
               <blockquote>“{characterMessage.split('. ')[0]}.”<small>✦ — {currentCharacterName}</small></blockquote>
             </section>
             <section className="railMissions"><h3>🎯 Misiones de hoy</h3>{missionItems.map(([icon,label,done]) => <div key={label} className={done ? 'mission done' : 'mission'}><span>{done ? '✓' : '□'}</span>{icon}<b>{label}</b></div>)}</section>
-            <section className="railQuote"><img src={currentCharacterImage} alt="" onError={e => { e.currentTarget.style.display = 'none'; }} /><b>LOS LÍMITES<br />SOLO EXISTEN<br />EN LA MENTE.</b></section>
+            <section className="railQuote"><img src={characterDisplayImage(currentCharacterImage)} alt="" referrerPolicy="no-referrer" data-original-src={currentCharacterImage} data-character-key={active?.animeCharacter || defaultAnimeCharacter(active?.animeTheme || 'hajime')} data-image-stage="0" data-character-fallback={characterAvatarDataUri(active?.animeCharacter || 'ippo')} onError={handleImageError} /><b>LOS LÍMITES<br />SOLO EXISTEN<br />EN LA MENTE.</b></section>
           </aside>
         </div>
       </main>
