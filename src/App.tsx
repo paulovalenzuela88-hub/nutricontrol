@@ -170,7 +170,7 @@ const themeBanners: Record<string, string> = {
 };
 
 const proxiedImage = (url: string) => url ? `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=1600&fit=inside&q=88` : '';
-const characterProxy = (url: string) => url ? `https://images.weserv.nl/?url=${encodeURIComponent(url)}&w=180&h=180&fit=cover&q=82` : '';
+const characterProxy = (url: string) => url ? `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=120&h=120&fit=cover&q=72` : '';
 const characterDisplayImage = (url: string) => url ? characterProxy(url) : '';
 
 const characterImageCacheKey = 'nutricontrol-character-images-v1';
@@ -311,19 +311,26 @@ const jikanCharacterCache: Record<string, string> = {};
 // Mini avatar: usa directamente la ilustración real configurada, optimizada a 180px.
 // No hace búsquedas externas ni dispara decenas de peticiones al cargar el selector.
 function CharacterAvatar({ characterId, name, className = '' }: { characterId: string; name: string; className?: string }) {
-  const staticImage = characterDisplayImage(characterImages[characterId] || '');
-  return <img
-    className={className}
-    src={staticImage}
-    alt={name}
-    loading="lazy"
-    decoding="async"
-    referrerPolicy="no-referrer"
-    onError={(e) => {
-      const img = e.currentTarget;
-      if (img.src) img.style.opacity = '0';
-    }}
-  />;
+  const [loaded, setLoaded] = useState(false);
+  const source = characterImages[characterId] || '';
+  const staticImage = characterDisplayImage(source);
+  return (
+    <span className={className} style={{ position: 'relative', overflow: 'hidden', display: 'block' }}>
+      {!loaded && <span aria-hidden="true" style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', fontSize: 22, background: '#151b27' }}>{characterIcons[characterId] || '★'}</span>}
+      {staticImage && <img
+        src={staticImage}
+        alt={name}
+        width={120}
+        height={120}
+        loading="lazy"
+        decoding="async"
+        referrerPolicy="no-referrer"
+        style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: loaded ? 1 : 0, transition: 'opacity .15s' }}
+        onLoad={() => setLoaded(true)}
+        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+      />}
+    </span>
+  );
 }
 
 function dailyCharacterMessage(theme: string, character: string, day: Day, targets: Targets, level: number) {
