@@ -27,7 +27,7 @@ function extractJson(text: string): any {
   if (arrayStart >= 0 && arrayEnd > arrayStart) {
     try { return JSON.parse(cleaned.slice(arrayStart, arrayEnd + 1)); } catch {}
   }
-  throw new Error('La IA no devolvió un resultado válido.');
+  const preview = cleaned.slice(0, 1800);\n  throw new Error(`La IA no devolvió un resultado válido. Respuesta recibida: ${preview || '(vacía)'}`);
 }
 
 function toDataUri(image: string, mimeType = 'image/jpeg') {
