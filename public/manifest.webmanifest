@@ -1,0 +1,16 @@
+{
+  "name": "NutriControl",
+  "short_name": "NutriControl",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020706",
+  "theme_color": "#111827",
+  "icons": [
+    {
+      "src": "/nutricontrol-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
