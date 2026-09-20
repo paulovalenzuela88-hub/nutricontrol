@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api, image } from './appdeployClient';
 
+const avatarSpriteUrl = new URL('./nutricontrol-avatar-sprite.webp', import.meta.url).href;
+
 type Micros = {
   fiber: number;
   sugar: number;
@@ -333,7 +335,7 @@ function CharacterAvatar({ characterId, name, className = '' }: { characterId: s
     title={name}
     style={{
       display: 'block', width: '100%', height: '100%', backgroundColor: '#151b27',
-      backgroundImage: typeof index === 'number' ? "url('/nutricontrol-avatar-sprite.webp?v=2')" : 'none',
+      backgroundImage: typeof index === 'number' ? 'url(' + avatarSpriteUrl + ')' : 'none',
       backgroundSize: typeof index === 'number' ? '800% 500%' : 'auto',
       backgroundPosition: position, backgroundRepeat: 'no-repeat', overflow: 'hidden',
       fontSize: '1.5em',
