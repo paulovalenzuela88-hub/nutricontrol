@@ -542,7 +542,14 @@ function loadState(): AppState {
           profiles: parsed.profiles.map((p: any) => ({
             ...makeProfile(String(p.name || 'Perfil')),
             ...p,
-            targets: p.targets || calculateTargets(Number(p.age || 30), p.sex === 'mujer' ? 'mujer' : 'hombre', Number(p.weight || 80), Number(p.height || 175), p.goal || 'perder', p.activity || 'moderado'),
+            targets: calculateTargets(
+              Number(p.age || 30),
+              p.sex === 'mujer' ? 'mujer' : 'hombre',
+              Number(p.weight || 80),
+              Number(p.height || 175),
+              p.goal || 'perder',
+              p.activity || 'moderado'
+            ),
             animeTheme: normalizeAnimeTheme(p.animeTheme),
             animeCharacter: (() => {
               const theme = normalizeAnimeTheme(p.animeTheme);
