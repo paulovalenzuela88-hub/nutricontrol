@@ -48,31 +48,31 @@ const microsSchema = {
 
 async function runVision(env: Env, image: string, prompt: string, schema: any) {
   const dataUri = image.startsWith('data:') ? image : `data:image/jpeg;base64,${image}`;
-  let firstError: unknown;
+  let lastError: unknown;
+
   try {
-    return await env.AI.run(MODEL, {
+    const result = await env.AI.run(MODEL, {
       prompt,
       image_url: { url: dataUri },
       guided_json: schema,
       temperature: 0.1,
       max_tokens: 1200,
     }) as any;
+    return parseJson(getModelPayload(result));
   } catch (error) {
-    firstError = error;
+    lastError = error;
   }
 
-  // Segundo intento: si el modelo rechaza el esquema guiado, pedimos JSON
-  // estricto con la misma imagen. Esto evita que un fallo puntual de
-  // structured output deje inutilizable el análisis.
   try {
-    return await env.AI.run(MODEL, {
+    const result = await env.AI.run(MODEL, {
       prompt: `${prompt} IMPORTANTE: responde SOLO JSON válido, sin markdown ni explicaciones.`,
       image_url: { url: dataUri },
       temperature: 0.05,
       max_tokens: 1200,
     }) as any;
-  } catch {
-    throw firstError;
+    return parseJson(getModelPayload(result));
+  } catch (error) {
+    throw (error || lastError);
   }
 }
 
@@ -105,7 +105,7 @@ async function handleAnalyzeFood(request: Request, env: Env) {
     const result = await runVision(env, body.image,
       'Analiza esta foto de comida para una app de nutrición. Identifica SOLO los alimentos visibles. Estima la porción visible en gramos y sus calorías, proteína, carbohidratos, grasas y micronutrientes. Responde en español. No inventes alimentos. Si algo es incierto, baja confidence. Devuelve únicamente el objeto indicado por el esquema.',
       schema);
-    const parsed = parseJson(getModelPayload(result));
+    const parsed = result;
     return json({ foods: Array.isArray(parsed?.foods) ? parsed.foods : [] });
   } catch (error) {
     console.error('Food analysis failed', error);
