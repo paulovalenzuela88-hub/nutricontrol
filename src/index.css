@@ -41,3 +41,5 @@ header{height:68px;padding:0 28px;margin-left:-218px;padding-left:244px;backgrou
 @media(max-width:900px){.characterGrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:560px){.characterGrid{grid-template-columns:repeat(3,minmax(0,1fr))}.characterBadge{width:52px;height:52px;flex-basis:52px}}
 @media(max-width:450px){.characterGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.photoPickerActions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}.photoPickerButton{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:10px;border:1px solid #46536c;background:#151e2d;color:#fff;cursor:pointer;font-weight:700}.photoPickerButton.primary{border:0}.photoPickerButton input{display:none!important}.photoPickerButton:hover{filter:brightness(1.08)}
