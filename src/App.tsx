@@ -225,10 +225,9 @@ const fetchRealCharacterImage = (characterId: string, name: string): Promise<str
     if (!imageUrl) throw new Error('No real character image returned by Jikan');
     persistCharacterImage(characterId, imageUrl);
     return imageUrl;
-  }).finally(() => {
-    characterRequestQueue = wait(1100);
   });
 
+  characterRequestQueue = task.then(() => wait(1100), () => wait(1100));
   characterImagePromises[characterId] = task;
   return task;
 };
