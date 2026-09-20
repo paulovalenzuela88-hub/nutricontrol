@@ -47,7 +47,7 @@ const microsSchema = {
   additionalProperties: false,
 };
 
-async function runVision(env: Env, image: string, prompt: string, schema: any) {
+async function runVision(env: Env, image: string, prompt: string, schema: any, expectedKey?: 'foods' | 'supplement') {
   const dataUri = image.startsWith('data:') ? image : `data:image/jpeg;base64,${image}`;
   let lastError: unknown;
 
@@ -71,7 +71,49 @@ async function runVision(env: Env, image: string, prompt: string, schema: any) {
       chat_template_kwargs: { enable_thinking: false },
     });
     const parsed = parseJson(getModelPayload(result));
-    if (parsed && typeof parsed === 'object') return parsed;
+    if (parsed && typeof parsed === 'object') {
+      const usable = expectedKey === 'foods'
+        ? Array.isArray(parsed.foods) && parsed.foods.length > 0
+        : expectedKey === 'supplement'
+          ? !!parsed.supplement
+          : true;
+      if (usable) return parsed;
+    }
+  } catch (error) {
+    lastError = error;
+  }
+
+  // Gemma can occasionally return a valid JSON object with an empty foods array.
+  // Retry once with JSON mode before falling back to the second vision model.
+  try {
+    const result = await (env.AI as any).run(PRIMARY_MODEL, {
+      messages: [
+        {
+          role: 'system',
+          content: 'Eres un analista nutricional visual. DEBES mirar la imagen y devolver datos útiles. Nunca devuelvas una lista vacía si hay comida visible. Identifica todos los componentes visibles y responde únicamente con JSON válido.',
+        },
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: prompt },
+            { type: 'image_url', image_url: { url: dataUri } },
+          ],
+        },
+      ],
+      response_format: { type: 'json_object' },
+      temperature: 0.05,
+      max_tokens: 2200,
+      chat_template_kwargs: { enable_thinking: false },
+    });
+    const parsed = parseJson(getModelPayload(result));
+    if (parsed && typeof parsed === 'object') {
+      const usable = expectedKey === 'foods'
+        ? Array.isArray(parsed.foods) && parsed.foods.length > 0
+        : expectedKey === 'supplement'
+          ? !!parsed.supplement
+          : true;
+      if (usable) return parsed;
+    }
   } catch (error) {
     lastError = error;
   }
@@ -139,7 +181,8 @@ async function handleAnalyzeFood(request: Request, env: Env) {
       env,
       body.image,
       'Analiza esta foto de comida con máximo detalle. Recorre visualmente toda la imagen antes de responder. Identifica CADA alimento o componente visible por separado, aunque sea pequeño o esté parcialmente cubierto: carnes, pollo, pescado, huevos, arroz, pasta, papas, pan, verduras, ensaladas, legumbres, queso, frutas, salsas, aderezos, aceite, bebidas y guarniciones. No te quedes solo con el alimento principal. Distingue ingredientes que parezcan diferentes. Para cada elemento estima la porción visible en gramos y sus calorías, proteína, carbohidratos, grasas y micronutrientes. Si no puedes identificar algo con certeza, usa la opción visualmente más probable y reduce confidence. No inventes alimentos que no sean visualmente plausibles. Responde en español y devuelve SOLO JSON compatible con el esquema.',
-      schema
+      schema,
+      'foods'
     );
     return json({ foods: Array.isArray(result?.foods) ? result.foods : [] });
   } catch (error) {
@@ -184,7 +227,8 @@ async function handleAnalyzeSupplement(request: Request, env: Env) {
       env,
       body.image,
       'Lee esta etiqueta de suplemento o vitamina con máximo detalle. Usa SOLO información visible o legible en la etiqueta. Identifica nombre, marca, porción, calorías, macros y todos los micronutrientes declarados. Si un nutriente no aparece, usa 0. No inventes dosis ni valores. Devuelve SOLO JSON compatible con el esquema.',
-      schema
+      schema,
+      'supplement'
     );
     return json({ supplement: result?.supplement || null });
   } catch (error) {
