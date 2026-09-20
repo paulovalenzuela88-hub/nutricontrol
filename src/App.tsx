@@ -877,10 +877,13 @@ export default function App() {
       const bytes = Uint8Array.from(atob(prepared.data), c => c.charCodeAt(0));
       const digest = await crypto.subtle.digest('SHA-256', bytes);
       const imageHash = Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+      const requestId = crypto.randomUUID();
       let lastError: unknown = null;
       for (let attempt = 1; attempt <= 3; attempt += 1) {
         try {
-          const r = await api.post('/api/analyze-food', { image: prepared.data, mimeType: prepared.mimeType, imageHash });
+          const r = await api.post('/api/analyze-food', { image: prepared.data, mimeType: prepared.mimeType, imageHash, requestId });
+          if (r.data?.imageHash && r.data.imageHash !== imageHash) throw new Error('La respuesta no corresponde a la fotografía enviada.');
+          if (r.data?.requestId && r.data.requestId !== requestId) throw new Error('La respuesta pertenece a otra solicitud.');
           const foods = Array.isArray(r.data?.foods) ? r.data.foods : [];
           if (foods.length > 0) { setAiFoods(foods.map(normalizeFood)); return; }
           lastError = new Error('La IA no devolvió alimentos en este intento.');
