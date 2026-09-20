@@ -323,9 +323,9 @@ function CharacterAvatar({ characterId, name, className = '' }: { characterId: s
     hinata: 38, kageyama: 39, oikawa: 40, bokuto: 41,
   };
   const index = avatarIndex[characterId];
-  const col = typeof index === 'number' ? index % 7 : -1;
-  const row = typeof index === 'number' ? Math.floor(index / 7) : -1;
-  const position = typeof index === 'number' ? `${(col / 6) * 100}% ${(row / 5) * 100}%` : 'center';
+  const col = typeof index === 'number' ? index % 8 : -1;
+  const row = typeof index === 'number' ? Math.floor(index / 8) : -1;
+  const position = typeof index === 'number' ? `${(col / 7) * 100}% ${(row / 4) * 100}%` : 'center';
   return <span
     className={className}
     role="img"
@@ -333,8 +333,8 @@ function CharacterAvatar({ characterId, name, className = '' }: { characterId: s
     title={name}
     style={{
       display: 'block', width: '100%', height: '100%', backgroundColor: '#151b27',
-      backgroundImage: typeof index === 'number' ? "url('/nutricontrol-avatar-sprite.webp')" : 'none',
-      backgroundSize: typeof index === 'number' ? '700% 600%' : 'auto',
+      backgroundImage: typeof index === 'number' ? "url('/nutricontrol-avatar-sprite.webp?v=2')" : 'none',
+      backgroundSize: typeof index === 'number' ? '800% 500%' : 'auto',
       backgroundPosition: position, backgroundRepeat: 'no-repeat', overflow: 'hidden',
       fontSize: '1.5em',
     }}
