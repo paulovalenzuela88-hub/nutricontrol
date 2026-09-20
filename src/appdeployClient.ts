@@ -2,7 +2,11 @@ export const api = {
   async post(path: string, body: unknown) {
     const response = await fetch(path, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, max-age=0',
+      },
       body: JSON.stringify(body),
     });
     let data: unknown = null;
