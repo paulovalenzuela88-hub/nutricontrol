@@ -113,13 +113,14 @@ const characterIcons: Record<string, string> = {
   tanjiro: '🌊', nezuko: '🎋', zenitsu: '⚡', inosuke: '🐗', yuji: '👊', megumi: '🐺', nobara: '🔨', gojo: '🔵',
   deku: '💚', bakugo: '💥', todoroki: '❄️', allmight: '💪', hinata: '🏐', kageyama: '👑', oikawa: '🏐', bokuto: '🦉',
   yuta: '⚔️', maki: '🗡️', toji: '🗡️', sukuna: '👹', eren: '🪽', mikasa: '⚔️', levi: '⚔️', armin: '🔥', erwin: '🫡', hange: '🔬',
+  momo: '🌸', okarun: '👽', aira: '✨', jiji: '🔥',
 };
 
 const characterStyles: Record<string, string> = {
   ippo: 'black-red', takamura: 'gold-black', miyata: 'blue-white', goku: 'orange-blue', vegeta: 'blue-white', gohan: 'purple-gold', piccolo: 'green-purple',
   naruto: 'orange-black', sasuke: 'blue-purple', sakura: 'pink-red', kakashi: 'silver-blue', luffy: 'red-blue', zoro: 'green-black', nami: 'orange-blue', sanji: 'black-gold',
   tanjiro: 'green-check', nezuko: 'pink-green', zenitsu: 'yellow-orange', inosuke: 'blue-gray', yuji: 'red-black', megumi: 'navy-blue', nobara: 'brown-red', gojo: 'white-blue',
-  deku: 'green-black', bakugo: 'orange-black', todoroki: 'red-white', allmight: 'blue-red', hinata: 'orange-black', kageyama: 'navy-blue', oikawa: 'teal-white', bokuto: 'black-gold', yuta: 'blue-white', maki: 'green-black', toji: 'black-red', sukuna: 'red-black', eren: 'green-black', mikasa: 'blue-red', levi: 'silver-blue', armin: 'gold-blue', erwin: 'green-black', hange: 'orange-black',
+  deku: 'green-black', bakugo: 'orange-black', todoroki: 'red-white', allmight: 'blue-red', momo: 'pink-red', okarun: 'blue-purple', aira: 'pink-blue', jiji: 'orange-black', hinata: 'orange-black', kageyama: 'navy-blue', oikawa: 'teal-white', bokuto: 'black-gold', yuta: 'blue-white', maki: 'green-black', toji: 'black-red', sukuna: 'red-black', eren: 'green-black', mikasa: 'blue-red', levi: 'silver-blue', armin: 'gold-blue', erwin: 'green-black', hange: 'orange-black',
 };
 
 const themeAssets: Record<string, { logo: string; alt: string; credit: string }> = {
@@ -259,6 +260,10 @@ function dailyCharacterMessage(theme: string, character: string, day: Day, targe
     kageyama: ['Precisión en cada registro. La técnica importa.', 'Haz bien lo básico y el resultado llegará con el tiempo.', 'Controla tus variables y mejora tu rendimiento.'],
     oikawa: ['La preparación diaria es lo que hace que el esfuerzo luzca.', 'Cuida los detalles: agua, sueño, comida y entrenamiento.', 'Hoy también puedes mejorar una pequeña parte de tu juego.'],
     bokuto: ['¡HEY HEY HEY! ¡Hoy vamos por otro nivel!', 'Aunque el día empiece bajo, podemos terminarlo arriba.', '¡Registra tu progreso y vamos con todo!'],
+    momo: ['Mantén tu energía y sigue avanzando aunque el día se ponga raro.', 'Tu progreso también se construye cuando confías en tu propia fuerza.', 'Hoy toca cumplir la misión y no perder el rumbo.'],
+    okarun: ['La curiosidad sirve, pero la constancia es la que transforma tus hábitos.', 'Registra tus datos, ajusta tu estrategia y sigue avanzando.', 'Un pequeño progreso hoy puede convertirse en un gran cambio.'],
+    aira: ['Confía en tu progreso y demuestra lo que puedes construir.', 'Disciplina, energía y constancia: esa es tu misión de hoy.', 'Haz que tus hábitos estén a la altura de tus objetivos.'],
+    jiji: ['Mantén la energía arriba y cumple una misión más.', 'No necesitas un día perfecto; necesitas seguir avanzando.', 'Entrena, registra y vuelve mañana con más fuerza.'],
   };
   const pool = lines[keyName] || lines.ippo;
   if (day.water >= targets.water && proteinPct >= 1 && exercise) return `¡Misión completada! Nivel ${level}: hoy cumpliste agua, proteína y ejercicio. ${pool[dateSeed % pool.length]}`;
