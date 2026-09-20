@@ -15,14 +15,23 @@ function json(data: unknown, status = 200) {
 }
 
 function parseJson(value: unknown): any {
-  const text = String(value ?? '').replace(/\`\`\`json/gi, '').replace(/\`\`\`/g, '').trim();
+  if (value && typeof value === 'object') return value;
+  const text = String(value ?? '').replace(/```json/gi, '').replace(/```/g, '').trim();
+  if (!text) throw new Error('La IA no devolvió un resultado válido.');
   try { return JSON.parse(text); } catch {}
-  const start = text.indexOf('{');
-  const end = text.lastIndexOf('}');
-  if (start >= 0 && end > start) {
-    try { return JSON.parse(text.slice(start, end + 1)); } catch {}
+  const jsonStart = text.indexOf('{');
+  const jsonEnd = text.lastIndexOf('}');
+  if (jsonStart >= 0 && jsonEnd > jsonStart) {
+    try { return JSON.parse(text.slice(jsonStart, jsonEnd + 1)); } catch {}
   }
   throw new Error('La IA no devolvió un resultado válido.');
+}
+
+function getModelPayload(result: any): unknown {
+  if (result?.response !== undefined) return result.response;
+  if (result?.answer !== undefined) return result.answer;
+  if (result?.choices?.[0]?.message?.content !== undefined) return result.choices[0].message.content;
+  return result;
 }
 
 const microsSchema = {
@@ -77,7 +86,7 @@ async function handleAnalyzeFood(request: Request, env: Env) {
     const result = await runVision(env, body.image,
       'Analiza esta foto de comida para una app de nutrición. Identifica SOLO los alimentos visibles. Estima la porción visible en gramos y sus calorías, proteína, carbohidratos, grasas y micronutrientes. Responde en español. No inventes alimentos. Si algo es incierto, baja confidence. Devuelve únicamente el objeto indicado por el esquema.',
       schema);
-    const parsed = parseJson(result?.response ?? result?.answer ?? result);
+    const parsed = parseJson(getModelPayload(result));
     return json({ foods: Array.isArray(parsed?.foods) ? parsed.foods : [] });
   } catch (error) {
     console.error('Food analysis failed', error);
@@ -111,7 +120,7 @@ async function handleAnalyzeSupplement(request: Request, env: Env) {
     const result = await runVision(env, body.image,
       'Lee esta etiqueta de suplemento o vitamina. Usa SOLO información legible en la etiqueta. Devuelve nombre, marca, porción, calorías, macros y micronutrientes declarados. Si un nutriente no aparece, usa 0. No inventes dosis. Devuelve únicamente el objeto indicado por el esquema.',
       schema);
-    const parsed = parseJson(result?.response ?? result?.answer ?? result);
+    const parsed = parseJson(getModelPayload(result));
     return json({ supplement: parsed?.supplement || null });
   } catch (error) {
     console.error('Supplement analysis failed', error);
