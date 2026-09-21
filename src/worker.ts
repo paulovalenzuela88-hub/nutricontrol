@@ -3,9 +3,9 @@ interface Env {
   ASSETS: Fetcher;
 }
 
-const PRIMARY_MODEL = '@cf/google/gemma-4-26b-a4b-it';
+const PRIMARY_MODEL = '@cf/meta/llama-3.2-11b-vision-instruct';
 const FALLBACK_MODEL = '@cf/meta/llama-4-scout-17b-16e-instruct';
-const SECONDARY_FALLBACK_MODEL = '@cf/meta/llama-3.2-11b-vision-instruct';
+const SECONDARY_FALLBACK_MODEL = '@cf/google/gemma-4-26b-a4b-it';
 
 const corsHeaders = {
   'Content-Type': 'application/json; charset=utf-8',
@@ -72,7 +72,7 @@ async function runVision(env: Env, image: string, prompt: string, schema: any, e
         messages: [
           {
             role: 'system',
-            content: 'Eres el analista visual de NutriControl. Tu prioridad absoluta es NO OMITIR alimentos visibles. Inspecciona la imagen completa antes de responder. No inventes elementos, pero tampoco ignores componentes pequeños o parcialmente cubiertos.',
+            content: 'Analiza físicamente SOLO los píxeles de la fotografía recibida. Eres el analista visual de NutriControl. No uses memoria, no inventes una comida típica y no repitas resultados de solicitudes anteriores. Si ves una sola pera, devuelve pera; si ves una manzana, devuelve manzana. Inspecciona toda la imagen antes de responder.',
           },
           {
             role: 'user',
@@ -82,7 +82,6 @@ async function runVision(env: Env, image: string, prompt: string, schema: any, e
         image: dataUri,
         temperature: 0.05,
         max_tokens: 2600,
-        chat_template_kwargs: { enable_thinking: false },
       });
 
       const parsed = parseJson(getModelPayload(result));
@@ -103,7 +102,7 @@ async function runVision(env: Env, image: string, prompt: string, schema: any, e
         },
         {
           role: 'user',
-          content: prompt,
+          content: prompt + '\n\nFotografía nueva e independiente. Hash: ' + (imageHash || 'sin-hash'),
         },
       ],
       image: dataUri,
