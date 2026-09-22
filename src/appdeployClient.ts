@@ -1,7 +1,10 @@
+const API_BASE = 'https://nutricontrol-7ll6b4.v2.appdeploy.ai';
+
 export const api = {
   async post(path: string, body: unknown) {
-    const response = await fetch(path, {
+    const response = await fetch(`${API_BASE}${path}`, {
       method: 'POST',
+      mode: 'cors',
       cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
