@@ -682,19 +682,53 @@ export default function App() {
   const [supplementBusy, setSupplementBusy] = useState(false);
   const [supplementError, setSupplementError] = useState('');
   const [supplementResult, setSupplementResult] = useState<Supplement | null>(null);
+  const [aiSource, setAiSource] = useState<'appdeploy' | 'apple' | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const action = params.get('action');
-    if (action !== 'analyze-food') return;
 
+    if (action === 'analyze-food') {
+      const requestedMeal = params.get('meal');
+      if (requestedMeal && meals.includes(requestedMeal)) setMealSelection(requestedMeal);
+      setAiFoods([]);
+      setAiSelected([]);
+      setAiError('');
+      setPhoto(null);
+      setAiSource(null);
+      setModal('food');
+      window.history.replaceState({}, document.title, window.location.pathname);
+      return;
+    }
+
+    if (action !== 'apple-food-result') return;
     const requestedMeal = params.get('meal');
+    const rawResult = params.get('result');
     if (requestedMeal && meals.includes(requestedMeal)) setMealSelection(requestedMeal);
-    setAiFoods([]);
     setAiSelected([]);
-    setAiError('');
     setPhoto(null);
+    setAiSource('apple');
     setModal('food');
+
+    try {
+      const candidates = [rawResult || ''].filter(Boolean).flatMap(value => [value, value.replace(/^```(?:json)?\\s*/i, '').replace(/\\s*```$/i, '')]);
+      let parsed: any = null;
+      for (const candidate of candidates) {
+        try {
+          parsed = JSON.parse(candidate);
+          break;
+        } catch {
+          // Try the next representation.
+        }
+      }
+      const foods = Array.isArray(parsed) ? parsed : Array.isArray(parsed?.foods) ? parsed.foods : [];
+      if (!foods.length) throw new Error('El atajo no devolvió alimentos en formato válido.');
+      setAiFoods(foods.map(normalizeFood));
+      setAiError('');
+    } catch (error) {
+      setAiFoods([]);
+      setAiError(error instanceof Error ? `Apple Intelligence devolvió un resultado que NutriControl no pudo leer: ${error.message}` : 'Apple Intelligence devolvió un resultado que NutriControl no pudo leer.');
+    }
     window.history.replaceState({}, document.title, window.location.pathname);
   }, []);
 
@@ -879,9 +913,24 @@ export default function App() {
     setSetupNewProfile(false);
   }
 
+  function openAppleFoodShortcut() {
+    const callback = new URL(window.location.href);
+    callback.search = '';
+    callback.hash = '';
+    callback.searchParams.set('action', 'apple-food-result');
+    callback.searchParams.set('meal', mealSelection || 'Desayuno');
+
+    const shortcut = new URL('shortcuts://x-callback-url/run-shortcut');
+    shortcut.searchParams.set('name', 'NutriControl - Analizar comida');
+    shortcut.searchParams.set('x-success', callback.toString());
+    shortcut.searchParams.set('x-cancel', callback.toString().replace('apple-food-result', 'apple-food-cancel'));
+    shortcut.searchParams.set('x-error', callback.toString().replace('apple-food-result', 'apple-food-error'));
+    window.location.href = shortcut.toString();
+  }
+
   async function analyze() {
     if (!photo) return;
-    setAiBusy(true); setAiError(''); setAiFoods([]); setAiSelected([]);
+    setAiBusy(true); setAiError(''); setAiFoods([]); setAiSelected([]); setAiSource('appdeploy');
     try {
       const prepared = await image.resizeIfNeeded(photo, {
         maxDimension: 1600,
@@ -1153,7 +1202,7 @@ export default function App() {
         </div>
       </main>
 
-      {modal && <div className="overlay"><div className="modal"><button className="close" onClick={() => setModal(null)}>×</button><h2>📸 Registrar comida</h2><label className="formField"><span>¿Qué comida estás registrando?</span><select value={mealSelection} onChange={e => setMealSelection(e.target.value)}>{meals.map(m => <option key={m} value={m}>{m}</option>)}</select></label><div className="drop"><div className="photoPickerActions"><label className="primary photoPickerButton">📷 Tomar foto<input type="file" accept="image/*" capture="environment" onChange={e => setPhoto(e.target.files?.[0] || null)} /></label><label className="photoPickerButton">🖼️ Elegir de galería<input type="file" accept="image/*" onChange={e => setPhoto(e.target.files?.[0] || null)} /></label></div>{photo && <p>{photo.name}</p>}<button className="primary" disabled={!photo || aiBusy} onClick={analyze}>{aiBusy ? 'Analizando…' : '✨ Analizar con IA'}</button></div>{aiError && <div className="error">{aiError}</div>}{aiFoods.length > 0 && <><div className="aiHeader"><h3>Resultado de IA</h3><div className="aiBulkActions"><button onClick={addSelectedAiFoods} disabled={!aiSelected.length}>Añadir seleccionados ({aiSelected.length})</button><button className="primary" onClick={addAllAiFoods}>Añadir todos ({aiFoods.length})</button></div></div><p className="aiHint">Puedes añadir uno, seleccionar varios o incorporar todos los alimentos detectados de una vez.</p>{aiFoods.map((f, i) => { const selected = aiSelected.includes(i); return <div className={'airow' + (selected ? ' selected' : '')} key={i}><label className="aiSelect"><input type="checkbox" checked={selected} onChange={() => toggleAiFood(i)} /></label><div><b>{f.name}</b><small>{Math.round(f.grams)} g · confianza {Math.round((f.confidence || 0) * 100)}%</small></div><strong>{Math.round(f.kcal)} kcal</strong><button onClick={() => addFood(mealSelection, f)}>Añadir</button></div>; })}</>}<div className="manual"><p>También puedes registrar alimentos manualmente.</p><button onClick={() => { const n = prompt('Alimento'); const k = Number(prompt('Calorías') || 0); const p = Number(prompt('Proteína (g)') || 0); const c = Number(prompt('Carbohidratos (g)') || 0); const f = Number(prompt('Grasas (g)') || 0); if (n && k > 0) addFood(mealSelection, { name: n, grams: 0, kcal: k, p, c, f }); }}>Entrada manual</button></div></div></div>}
+      {modal && <div className="overlay"><div className="modal"><button className="close" onClick={() => setModal(null)}>×</button><h2>📸 Registrar comida</h2><label className="formField"><span>¿Qué comida estás registrando?</span><select value={mealSelection} onChange={e => setMealSelection(e.target.value)}>{meals.map(m => <option key={m} value={m}>{m}</option>)}</select></label><div className="drop"><div className="photoPickerActions"><label className="primary photoPickerButton">📷 Tomar foto<input type="file" accept="image/*" capture="environment" onChange={e => setPhoto(e.target.files?.[0] || null)} /></label><label className="photoPickerButton">🖼️ Elegir de galería<input type="file" accept="image/*" onChange={e => setPhoto(e.target.files?.[0] || null)} /></label></div>{photo && <p>{photo.name}</p>}<button className="primary" disabled={!photo || aiBusy} onClick={analyze}>{aiBusy ? 'Analizando…' : '✨ Analizar con IA'}</button><button type="button" onClick={openAppleFoodShortcut}>🍎 Analizar con Apple Intelligence</button><p className="muted">Apple Intelligence es opcional. Si el atajo devuelve el resultado, NutriControl lo recibe aquí sin llamar al endpoint de IA de AppDeploy.</p></div>{aiSource === 'apple' && aiFoods.length > 0 && <div className="success">✓ Resultado recibido desde Apple Intelligence</div>}{aiError && <div className="error">{aiError}</div>}{aiFoods.length > 0 && <><div className="aiHeader"><h3>Resultado de IA</h3><div className="aiBulkActions"><button onClick={addSelectedAiFoods} disabled={!aiSelected.length}>Añadir seleccionados ({aiSelected.length})</button><button className="primary" onClick={addAllAiFoods}>Añadir todos ({aiFoods.length})</button></div></div><p className="aiHint">Puedes añadir uno, seleccionar varios o incorporar todos los alimentos detectados de una vez.</p>{aiFoods.map((f, i) => { const selected = aiSelected.includes(i); return <div className={'airow' + (selected ? ' selected' : '')} key={i}><label className="aiSelect"><input type="checkbox" checked={selected} onChange={() => toggleAiFood(i)} /></label><div><b>{f.name}</b><small>{Math.round(f.grams)} g · confianza {Math.round((f.confidence || 0) * 100)}%</small></div><strong>{Math.round(f.kcal)} kcal</strong><button onClick={() => addFood(mealSelection, f)}>Añadir</button></div>; })}</>}<div className="manual"><p>También puedes registrar alimentos manualmente.</p><button onClick={() => { const n = prompt('Alimento'); const k = Number(prompt('Calorías') || 0); const p = Number(prompt('Proteína (g)') || 0); const c = Number(prompt('Carbohidratos (g)') || 0); const f = Number(prompt('Grasas (g)') || 0); if (n && k > 0) addFood(mealSelection, { name: n, grams: 0, kcal: k, p, c, f }); }}>Entrada manual</button></div></div></div>}
 
       {exerciseOpen && <div className="overlay"><div className="modal smallModal"><button className="close" onClick={() => setExerciseOpen(false)}>×</button><h2>🏃 Registrar ejercicio</h2><label className="formField"><span>Actividad</span><select value={exerciseType} onChange={e => setExerciseType(e.target.value)}>{exerciseTypes.map(([name]) => <option key={name}>{name}</option>)}</select></label><label className="formField"><span>Duración (minutos)</span><input type="number" min="1" max="600" value={exerciseDuration} onChange={e => setExerciseDuration(Number(e.target.value))} /></label><label className="formField"><span>Intensidad</span><select value={exerciseIntensity} onChange={e => setExerciseIntensity(e.target.value as any)}><option value="suave">Suave</option><option value="moderada">Moderada</option><option value="alta">Alta</option></select></label><label className="formField"><span>Foto o pantallazo del entrenamiento (opcional)</span><input type="file" accept="image/*" capture="environment" onChange={e => setExercisePhoto(e.target.files?.[0] || null)} /></label><p className="muted">Calorías estimadas según peso, duración, actividad e intensidad. La imagen queda asociada al registro.</p><button className="primary fullButton" onClick={addExercise}>＋ Guardar ejercicio</button></div></div>}
 
