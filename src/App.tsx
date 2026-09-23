@@ -683,6 +683,21 @@ export default function App() {
   const [supplementError, setSupplementError] = useState('');
   const [supplementResult, setSupplementResult] = useState<Supplement | null>(null);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const action = params.get('action');
+    if (action !== 'analyze-food') return;
+
+    const requestedMeal = params.get('meal');
+    if (requestedMeal && meals.includes(requestedMeal)) setMealSelection(requestedMeal);
+    setAiFoods([]);
+    setAiSelected([]);
+    setAiError('');
+    setPhoto(null);
+    setModal('food');
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }, []);
+
   const active = state.profiles.find(p => p.id === state.activeProfileId) || state.profiles[0];
   const day = active?.days[date] || blankDay();
   const targets = active?.targets || calculateTargets(30, 'hombre', 80, 175, 'perder', 'moderado');
