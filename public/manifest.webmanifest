@@ -12,5 +12,13 @@
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Registrar comida",
+      "short_name": "Comida",
+      "description": "Abre directamente el registro de comida con cámara o galería.",
+      "url": "/?action=analyze-food"
+    }
   ]
 }
