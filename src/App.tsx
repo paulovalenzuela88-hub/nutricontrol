@@ -783,11 +783,18 @@ export default function App() {
 
   function updateDay(fn: (d: Day) => void) {
     if (!active) return;
-    const next = structuredClone(state);
-    const p = next.profiles.find(x => x.id === active.id)!;
-    p.days[date] = normalizeDay(p.days[date] || blankDay());
-    fn(p.days[date]);
-    commit(next);
+    // Importante: usar el estado más reciente de React evita que dos registros
+    // hechos seguidos (por ejemplo trufa + capuchino) trabajen sobre una copia
+    // antigua y terminen reemplazando cambios anteriores del mismo día.
+    setState(current => {
+      const next = structuredClone(current);
+      const p = next.profiles.find(x => x.id === active.id);
+      if (!p) return current;
+      p.days[date] = normalizeDay(p.days[date] || blankDay());
+      fn(p.days[date]);
+      saveState(next);
+      return next;
+    });
   }
 
   function updateActiveProfile(fn: (p: UserProfile) => void) {
