@@ -411,6 +411,31 @@ const localDateKey = (d = new Date()) => {
   return `${y}-${m}-${day}`;
 };
 const today = () => localDateKey();
+
+const recoveryBreakfastDate = '2026-09-24';
+const recoveryBreakfastFood: Food = {
+  name: 'Desayuno recuperado · galletas de salvado + leche',
+  grams: 0,
+  kcal: 400,
+  p: 0,
+  c: 0,
+  f: 0,
+};
+
+function restoreTodayBreakfast(state: AppState): AppState {
+  // Recuperación puntual solicitada por el usuario para no perder el registro
+  // del desayuno de hoy. Solo se inserta si el desayuno de esa fecha está vacío.
+  if (today() !== recoveryBreakfastDate) return state;
+  const next = structuredClone(state);
+  for (const profile of next.profiles) {
+    const day = normalizeDay(profile.days[recoveryBreakfastDate] || blankDay());
+    if (day.meals.Desayuno.length === 0) {
+      day.meals.Desayuno.push(normalizeFood(recoveryBreakfastFood));
+      profile.days[recoveryBreakfastDate] = day;
+    }
+  }
+  return next;
+}
 const id = () => Math.random().toString(36).slice(2, 10);
 
 const emptyMicros = (): Micros => ({
@@ -556,7 +581,7 @@ function loadState(): AppState {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed.profiles)) {
-        return {
+        const restored = {
           profiles: parsed.profiles.map((p: any) => ({
             ...makeProfile(String(p.name || 'Perfil')),
             ...p,
@@ -578,6 +603,9 @@ function loadState(): AppState {
           })),
           activeProfileId: parsed.activeProfileId || parsed.profiles[0]?.id,
         };
+        const restored = restoreTodayBreakfast(restored);
+        saveState(restored);
+        return restored;
       }
     }
     const old = JSON.parse(localStorage.getItem('nutricontrol-v2') || 'null');
