@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#101114">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="REPLIKA AI">
+  <meta name="description" content="Tu espacio privado para preparar recreaciones y ediciones fotográficas mediante instrucciones naturales.">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icon.svg">
+  <link rel="stylesheet" href="./styles.css">
+  <title>REPLIKA AI</title>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">R</span><div><strong>REPLIKA AI</strong><small>PHOTO STUDIO</small></div></div>
+      <button id="installHelp" class="icon-button" aria-label="Cómo instalar">＋</button>
+    </header>
+
+    <section class="intro">
+      <p class="eyebrow">TU ESTUDIO FOTOGRÁFICO</p>
+      <h1>La foto que imaginas.<br><em>Con tus instrucciones.</em></h1>
+      <p class="sub">Carga una referencia, elige la fotografía que quieres editar y explica con tus propias palabras qué debe cambiar.</p>
+    </section>
+
+    <section class="upload-grid">
+      <label class="upload-card" for="identityInput">
+        <input id="identityInput" type="file" accept="image/*">
+        <span class="upload-icon">＋</span>
+        <strong>1. Persona de referencia</strong>
+        <small>La identidad que quieres conservar</small>
+        <img id="identityPreview" alt="Vista previa de la persona de referencia" hidden>
+        <span class="file-name" id="identityName">Añadir fotografía</span>
+      </label>
+      <label class="upload-card" for="targetInput">
+        <input id="targetInput" type="file" accept="image/*">
+        <span class="upload-icon">＋</span>
+        <strong>2. Foto que quieres recrear</strong>
+        <small>Pose, ropa, encuadre y escenario</small>
+        <img id="targetPreview" alt="Vista previa de la fotografía de destino" hidden>
+        <span class="file-name" id="targetName">Añadir fotografía</span>
+      </label>
+    </section>
+
+    <section class="conversation">
+      <div class="section-heading"><div><p class="eyebrow">EDICIÓN CONVERSACIONAL</p><h2>¿Qué quieres cambiar?</h2></div><span class="privacy-pill">Se queda en este dispositivo</span></div>
+      <div id="messages" class="messages" aria-live="polite">
+        <div class="assistant-message"><span class="assistant-avatar">R</span><p>Cuando cargues tus fotos, dime qué quieres hacer. Puedes escribir o dictar instrucciones como si hablaras conmigo.</p></div>
+      </div>
+      <div class="composer">
+        <textarea id="instruction" rows="2" placeholder="Ej.: conserva el rostro y la ropa; ajusta ligeramente la cintura y el largo de las piernas…"></textarea>
+        <div class="composer-actions">
+          <button id="voiceButton" class="round-button" aria-label="Dictar instrucción" title="Dictar instrucción">🎙</button>
+          <button id="addReference" class="round-button" aria-label="Añadir otra referencia" title="Añadir otra referencia">▧</button>
+          <button id="sendButton" class="send-button">Añadir instrucción <span>↗</span></button>
+        </div>
+        <input id="extraInput" type="file" accept="image/*" multiple hidden>
+      </div>
+      <div class="notice" id="voiceNotice">El dictado utiliza el reconocimiento de voz disponible en Safari. Puede requerir conexión y permiso del micrófono.</div>
+    </section>
+
+    <section class="next-step">
+      <div class="next-icon">✦</div>
+      <div><strong>Tu edición, paso a paso</strong><p>Las instrucciones se guardan en esta sesión y puedes copiarlas para usarlas en tu motor de edición.</p></div>
+    </section>
+
+    <button id="copyPrompt" class="primary-button">Copiar instrucciones de edición</button>
+    <button id="saveSession" class="secondary-button">Guardar sesión en este iPhone</button>
+    <p id="status" class="status" role="status"></p>
+
+    <footer><span>REPLIKA AI · BETA</span><span>Las fotos se procesan en esta página; no se suben a un servidor.</span></footer>
+  </main>
+  <div id="modal" class="modal" hidden><div class="modal-card"><button id="closeModal" class="close">×</button><h3>Instalar REPLIKA AI</h3><p>En Safari, toca <b>Compartir</b> y después <b>Añadir a pantalla de inicio</b>. Así tendrás un acceso directo como una aplicación.</p><button id="okModal" class="primary-button">Entendido</button></div></div>
+  <script src="./app.js"></script>
+</body>
+</html>
