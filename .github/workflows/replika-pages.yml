@@ -1,7 +1,7 @@
 name: Deploy REPLIKA AI
 on:
   push:
-    branches: [replika-ai]
+    branches: [replika-desde-cero]
     paths:
       - "replika/**"
       - ".github/workflows/replika-pages.yml"
