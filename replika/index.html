@@ -14,7 +14,7 @@
 <div class="upload"><b>2 · Foto de referencia</b><p>La pose y escena que quieres copiar.</p><div class="preview" id="preview2">Vista previa</div><input id="photo2" type="file" accept="image/*"></div>
 </section>
 <label for="instruction">¿Algo más que quieras indicar? (opcional)</label>
-<textarea id="instruction" placeholder="Ej.: mantener el rostro, copiar exactamente la pose y el encuadre de la segunda foto, conservar el escenario...">Recreate the second image as closely as possible: match its exact body pose, camera angle, framing, clothing, lighting and background. Use the person and facial identity from the first image. Do not keep the original pose from the first image. Photorealistic result.</textarea>
+<textarea id="instruction" placeholder="Ej.: mantener el rostro, copiar exactamente la pose y el encuadre de la segunda foto, conservar el escenario...">Use Image 1 as the source person and preserve their facial identity. Recreate the pose, body position, camera angle, framing, clothing, lighting and background from Image 2 as closely as possible. The final image must follow Image 2, not retain the original pose from Image 1. Photorealistic result.</textarea>
 <button id="go">GENERAR IMAGEN</button><div class="status" id="status" aria-live="polite"></div>
 <section class="result" id="result"><b>Tu resultado</b><img id="output" alt="Imagen generada"><a id="save" download="replika.png">Guardar imagen</a></section>
 <p class="fine">Las imágenes se envían al servicio externo Hugging Face para generar el resultado. El servicio puede tener cola o interrupciones. No guardamos las fotos en un servidor propio. La similitud facial depende del modelo y no puede garantizarse al 100%.</p>
@@ -31,18 +31,18 @@ $("go").addEventListener("click",async()=>{
  try{
   const client=await Client.connect("kulkas2pintu/QWEN_EDIT_IMAGE");
   status.textContent="Subiendo las imágenes y preparando la edición…";
-  const prompt=$("instruction").value.trim()||"Copy the exact pose, framing, clothes and scene of image 2. Keep the identity and appearance of the person in image 1.";
+  const prompt=$("instruction").value.trim()||"Use Image 1 as the source person and preserve their facial identity. Recreate the pose, body position, camera angle, framing, clothing, lighting and background from Image 2 as closely as possible. The final image must follow Image 2, not retain the original pose from Image 1. Photorealistic result.";
   const response=await client.predict("/edit",{
    image:first,
    prompt,
-   lora_adapter:"AnyPose",
+   lora_adapter:"Fal-Multiple-Angles",
    image2:second,
    seed:0,
    randomize_seed:true,
    guidance_scale:2.5,
-   steps:8,
+   steps:6,
    preserve_identity:true,
-   identity_strength:85,
+   identity_strength:80,
    output_size:1280,
    fix_hands:true,
    lock_face_hair:true
