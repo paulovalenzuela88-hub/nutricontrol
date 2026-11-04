@@ -1,21 +1,15 @@
-# REPLIKA AI — iPhone beta
+# REPLIKA AI — beta para iPhone
 
-An iPhone-first installable web app prototype for collecting two photo references and natural-language editing instructions.
+Aplicación móvil para recrear una foto usando una foto de identidad y otra foto objetivo.
 
-## Current beta features
-- Two local image previews (identity reference and target photo).
-- Additional reference attachments.
-- Voice dictation through Safari Web Speech where supported, with iOS keyboard dictation as fallback.
-- Conversational instruction history.
-- Copyable editing brief.
-- Local session text saved in browser storage.
-- PWA installable from Safari and offline app shell.
+## Motor de edición
+Integra el Space público `kulkas2pintu/QWEN_EDIT_IMAGE` de Hugging Face mediante `@gradio/client`, con Qwen Image Edit 2511, preservación de identidad y referencia de pose/escena.
 
-## Important limitation
-This first beta does **not** generate or edit images yet. It does not upload photos to a server. The image-generation engine is not integrated because a truly unlimited, free cloud image API does not exist, and iOS Safari cannot host a full diffusion model with the same capabilities as a native on-device app. The next engineering step is to validate a local iOS image engine (for example Draw Things) and determine whether a supported local bridge/API can be used. Do not present the copy-brief action as image generation.
+## Límites y privacidad
+- El uso del Space público puede ser gratuito, pero depende de disponibilidad de GPU y colas; no se garantiza uso ilimitado ni disponibilidad continua.
+- Las fotografías se envían al Space externo únicamente cuando el usuario acepta y pulsa Generar. No se guardan en esta aplicación.
+- La preservación del rostro es aproximada; ningún modelo garantiza identidad matemáticamente idéntica.
+- No subir fotos privadas o de terceros sin autorización.
 
-## Install
-Host this directory over HTTPS, open it in Safari on iPhone, tap Share → Add to Home Screen.
-
-## Privacy
-Image files are only previewed in memory in the current page. The text session is saved locally in localStorage when the user chooses Save. No photo upload or remote analytics is implemented.
+## Publicación
+GitHub Pages sirve la carpeta `replika/`. Abrir en Safari y usar Compartir → Añadir a pantalla de inicio.
