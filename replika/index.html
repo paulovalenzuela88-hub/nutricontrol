@@ -2,16 +2,57 @@
 <html lang="es"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111116"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="REPLIKA">
-<title>REPLIKA · Recreador de fotos</title>
+<title>REPLIKA</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#111116;color:#f7f4fb;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.wrap{max-width:760px;margin:auto;padding:20px 16px 32px}.top{display:flex;align-items:center;justify-content:space-between;padding:10px 0 22px;border-bottom:1px solid #34303b}.logo{font-weight:850;letter-spacing:2px}.tag{font-size:11px;color:#c8a8f5;background:#292232;border:1px solid #514064;border-radius:30px;padding:7px 10px}h1{font-size:34px;line-height:1.05;letter-spacing:-1px;margin:26px 0 8px}h1 span{color:#c8a8f5}.desc{font-size:14px;color:#b5b0bf;line-height:1.55;margin:0 0 18px}.steps{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}.step{border:1px solid #393440;background:#1b1920;border-radius:14px;padding:12px;font-size:12px;line-height:1.45}.step b{display:block;color:#e4d5f8;margin-bottom:4px}.launch{display:block;text-align:center;background:#d9c0f7;color:#21182c;text-decoration:none;font-weight:800;padding:15px;border-radius:14px;margin:18px 0}.embed{width:100%;height:78vh;min-height:680px;border:1px solid #393440;border-radius:14px;background:white}small{display:block;color:#9993a3;font-size:11px;line-height:1.5;margin-top:14px}footer{color:#77717e;font-size:10px;border-top:1px solid #34303b;padding-top:14px;margin-top:20px}@media(max-width:420px){h1{font-size:30px}.wrap{padding-left:13px;padding-right:13px}.embed{height:78vh;min-height:650px}}
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#111116;color:#f7f4fb;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.wrap{max-width:680px;margin:auto;padding:18px 16px 36px}.top{display:flex;justify-content:space-between;align-items:center;padding:9px 0 18px;border-bottom:1px solid #34303b}.logo{font-weight:900;letter-spacing:2px}.tag{font-size:10px;color:#c8a8f5;border:1px solid #514064;border-radius:30px;padding:7px 10px}h1{font-size:32px;line-height:1.06;letter-spacing:-1px;margin:25px 0 8px}h1 span{color:#c8a8f5}.desc{font-size:14px;color:#b5b0bf;line-height:1.5;margin:0 0 20px}.uploads{display:grid;grid-template-columns:1fr 1fr;gap:12px}.upload{border:1px solid #494151;background:#1b1920;border-radius:15px;padding:12px;min-width:0}.upload b{display:block;font-size:13px;margin-bottom:5px}.upload p{font-size:11px;color:#a9a2b1;line-height:1.4;min-height:32px;margin:0 0 10px}.preview{height:150px;border-radius:10px;background:#29252f;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#8e8798;font-size:12px;margin-bottom:10px}.preview img{width:100%;height:100%;object-fit:contain}.upload input{width:100%;font-size:11px;color:#cfc8d7}label{display:block;font-size:12px;color:#d9d2e0;margin:17px 0 7px}textarea{width:100%;min-height:78px;resize:vertical;border-radius:12px;border:1px solid #494151;background:#1b1920;color:#fff;padding:12px;font:14px/1.45 inherit}button{width:100%;border:0;border-radius:13px;padding:16px;background:#d9c0f7;color:#21182c;font-size:15px;font-weight:850;margin-top:15px}button:disabled{opacity:.55}.status{font-size:12px;color:#c8a8f5;line-height:1.5;min-height:20px;margin:12px 0}.result{display:none;border:1px solid #494151;border-radius:15px;background:#1b1920;padding:12px}.result img{width:100%;height:auto;border-radius:10px}.result a{display:block;color:#d9c0f7;margin-top:12px;font-size:13px}.fine{font-size:10px;color:#8e8798;line-height:1.5;margin-top:18px}@media(max-width:430px){.wrap{padding:14px 12px 30px}h1{font-size:29px}.preview{height:125px}.uploads{gap:8px}.upload{padding:9px}}
 </style></head><body><main class="wrap">
-<header class="top"><div class="logo">REPLIKA</div><span class="tag">BETA · SIN DESCARGAS</span></header>
-<h1>Tu rostro.<br><span>La foto que quieres.</span></h1>
-<p class="desc">Usa tu foto como identidad y otra imagen como referencia de pose, ropa y escenario. El motor intenta conservar el rostro mientras recrea la escena.</p>
-<div class="steps"><div class="step"><b>1 · Imagen a editar</b>Sube la foto de la persona cuyo rostro quieres conservar.</div><div class="step"><b>2 · Referencia</b>Sube la foto que quieres recrear.</div></div>
-<a class="launch" href="https://kulkas2pintu-qwen-edit-image.hf.space/" target="_blank" rel="noopener">ABRIR GENERADOR ↗</a>
-<iframe class="embed" src="https://kulkas2pintu-qwen-edit-image.hf.space/?__theme=dark" title="Motor de edición de fotografías Qwen" loading="lazy" allow="clipboard-read; clipboard-write"></iframe>
-<small>El motor es un servicio comunitario gratuito de Hugging Face. Puede tener cola, límites o interrupciones. Tus fotos se envían directamente a ese servicio cuando las cargas allí; no pasan por un servidor propio de REPLIKA. La conservación del rostro no es matemáticamente exacta.</small>
-<footer>REPLIKA · Proyecto nuevo y separado de NutriControl.</footer>
-</main></body></html>
+<header class="top"><div class="logo">REPLIKA</div><span class="tag">GENERADOR DE FOTOS</span></header>
+<h1>Tu rostro.<br><span>La escena que quieres.</span></h1>
+<p class="desc">Carga dos imágenes. La primera define a la persona; la segunda, la pose, ropa y composición que quieres recrear.</p>
+<section class="uploads">
+<div class="upload"><b>1 · Tu foto</b><p>La persona y el rostro que queremos conservar.</p><div class="preview" id="preview1">Vista previa</div><input id="photo1" type="file" accept="image/*"></div>
+<div class="upload"><b>2 · Foto de referencia</b><p>La pose y escena que quieres copiar.</p><div class="preview" id="preview2">Vista previa</div><input id="photo2" type="file" accept="image/*"></div>
+</section>
+<label for="instruction">¿Algo más que quieras indicar? (opcional)</label>
+<textarea id="instruction" placeholder="Ej.: mantener el rostro, copiar exactamente la pose y el encuadre de la segunda foto, conservar el escenario...">Recreate the second image as closely as possible: match its exact body pose, camera angle, framing, clothing, lighting and background. Use the person and facial identity from the first image. Do not keep the original pose from the first image. Photorealistic result.</textarea>
+<button id="go">GENERAR IMAGEN</button><div class="status" id="status" aria-live="polite"></div>
+<section class="result" id="result"><b>Tu resultado</b><img id="output" alt="Imagen generada"><a id="save" download="replika.png">Guardar imagen</a></section>
+<p class="fine">Las imágenes se envían al servicio externo Hugging Face para generar el resultado. El servicio puede tener cola o interrupciones. No guardamos las fotos en un servidor propio. La similitud facial depende del modelo y no puede garantizarse al 100%.</p>
+</main>
+<script type="module">
+import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
+const $=id=>document.getElementById(id);
+function preview(input,box){$(input).addEventListener("change",()=>{const f=$(input).files[0];if(!f)return;const u=URL.createObjectURL(f);$(box).innerHTML="";const img=document.createElement("img");img.src=u;$(box).append(img);});}
+preview("photo1","preview1");preview("photo2","preview2");
+$("go").addEventListener("click",async()=>{
+ const first=$("photo1").files[0],second=$("photo2").files[0],btn=$("go"),status=$("status");
+ if(!first||!second){status.textContent="Primero selecciona las dos fotos.";return;}
+ btn.disabled=true;$("result").style.display="none";status.textContent="Conectando con el generador…";
+ try{
+  const client=await Client.connect("kulkas2pintu/QWEN_EDIT_IMAGE");
+  status.textContent="Subiendo las imágenes y preparando la edición…";
+  const prompt=$("instruction").value.trim()||"Copy the exact pose, framing, clothes and scene of image 2. Keep the identity and appearance of the person in image 1.";
+  const response=await client.predict("/edit",{
+   image:first,
+   prompt,
+   lora_adapter:"AnyPose",
+   image2:second,
+   seed:0,
+   randomize_seed:true,
+   guidance_scale:2.5,
+   steps:8,
+   preserve_identity:true,
+   identity_strength:85,
+   output_size:1280,
+   fix_hands:true,
+   lock_face_hair:true
+  });
+  const item=response.data?.[0];
+  const url=typeof item==="string"?item:item?.url;
+  if(!url)throw new Error("El servicio no devolvió una imagen. Intenta nuevamente más tarde.");
+  $("output").src=url;$("save").href=url;$("result").style.display="block";
+  status.textContent="¡Imagen generada! Revisa el resultado.";
+ }catch(err){console.error(err);status.textContent="No se pudo generar: "+(err?.message||"el servicio está ocupado o no respondió.")+" Puedes intentarlo más tarde.";}
+ finally{btn.disabled=false;}
+});
+</script></body></html>
