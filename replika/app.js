@@ -1,12 +1,25 @@
-const $=id=>document.getElementById(id);const state={identity:null,target:null,extras:[],messages:[]};
-function preview(inputId,imgId,nameId,card){$(inputId).addEventListener("change",e=>{const file=e.target.files?.[0];if(!file)return;const url=URL.createObjectURL(file);$(imgId).src=url;$(imgId).hidden=false;$(nameId).textContent=file.name;card.classList.add("has-image");state[inputId==="identityInput"?"identity":"target"]=file;});}
-preview("identityInput","identityPreview","identityName",document.querySelectorAll(".upload-card")[0]);preview("targetInput","targetPreview","targetName",document.querySelectorAll(".upload-card")[1]);
-function addMessage(text,who="user"){state.messages.push({text,who});const el=document.createElement("div");el.className=who==="user"?"user-message":"assistant-message";const p=document.createElement("p");p.textContent=text;if(who==="assistant"){const a=document.createElement("span");a.className="assistant-avatar";a.textContent="R";el.append(a)}el.append(p);$("messages").append(el);el.scrollIntoView({behavior:"smooth",block:"nearest"});}
-$("sendButton").addEventListener("click",()=>{const value=$("instruction").value.trim();if(!value){$("status").textContent="Escribe o dicta una instrucción primero.";return;}addMessage(value);$("instruction").value="";$("status").textContent="Instrucción añadida a esta sesión.";});
-$("voiceButton").addEventListener("click",()=>{const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){$("voiceNotice").textContent="Este Safari no ofrece dictado web en esta versión. Puedes usar el micrófono del teclado del iPhone.";return;}const rec=new SR();rec.lang="es-CL";rec.interimResults=false;rec.maxAlternatives=1;rec.onresult=e=>{$("instruction").value=($("instruction").value+" "+e.results[0][0].transcript).trim();};rec.onerror=()=>{$("voiceNotice").textContent="No se pudo iniciar el dictado. Revisa el permiso del micrófono o usa el micrófono del teclado.";};rec.start();$("voiceNotice").textContent="Escuchando… habla ahora.";});
-$("addReference").addEventListener("click",()=>$("extraInput").click());$("extraInput").addEventListener("change",e=>{for(const f of e.target.files||[]){state.extras.push(f);addMessage("Referencia adicional añadida: "+f.name,"assistant");}});
-function promptText(){const intro="REPLIKA AI — instrucciones de edición fotográfica\n\nFoto de identidad: "+(state.identity?.name||"No adjuntada")+"\nFoto de destino: "+(state.target?.name||"No adjuntada")+"\n\nInstrucciones:";return intro+"\n"+state.messages.filter(m=>m.who==="user").map((m,i)=>(i+1)+". "+m.text).join("\n")+"\n\nReferencias adicionales: "+(state.extras.map(f=>f.name).join(", ")||"Ninguna")+"\n\nObjetivo: editar la fotografía de destino siguiendo las instrucciones, manteniendo sin cambios los elementos no mencionados. Usar la foto de identidad solo como referencia de identidad con autorización de la persona retratada.";}
-$("copyPrompt").addEventListener("click",async()=>{if(!state.identity||!state.target){$("status").textContent="Primero añade las dos fotografías.";return;}try{await navigator.clipboard.writeText(promptText());$("status").textContent="Instrucciones copiadas. La edición con IA aún no está conectada."; }catch{$("status").textContent="No se pudo copiar. Prueba desde Safari con permiso de portapapeles."; }});
-$("saveSession").addEventListener("click",()=>{const data={messages:state.messages,identityName:state.identity?.name,targetName:state.target?.name,savedAt:new Date().toISOString()};try{localStorage.setItem("replika-session",JSON.stringify(data));$("status").textContent="Sesión guardada en este iPhone. Las fotos no se guardan."; }catch{$("status").textContent="No se pudo guardar la sesión."; }});
-$("installHelp").addEventListener("click",()=>$("modal").hidden=false);$("closeModal").addEventListener("click",()=>$("modal").hidden=true);$("okModal").addEventListener("click",()=>$("modal").hidden=true);
+import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/+esm";
+const $=id=>document.getElementById(id);
+const state={identity:null,target:null,result:null};let clientPromise;
+function status(s){$("status").textContent=s}
+function refresh(){ $("generateButton").disabled=!(state.identity&&state.target&&$("consent").checked); }
+function addPhoto(input,img,name,key,card){$(input).addEventListener("change",e=>{const f=e.target.files?.[0];if(!f)return;if(!["image/jpeg","image/png","image/webp"].includes(f.type)){status("Usa una foto JPG, PNG o WebP.");return;}state[key]=f;$(img).src=URL.createObjectURL(f);$(img).hidden=false;$(name).textContent=f.name;card.classList.add("has-image");refresh();});}
+const cards=document.querySelectorAll(".upload-card");
+addPhoto("identityInput","identityPreview","identityName","identity",cards[0]);
+addPhoto("targetInput","targetPreview","targetName","target",cards[1]);
+$("consent").addEventListener("change",refresh);
+$("generateButton").addEventListener("click",async()=>{
+ if(!state.identity||!state.target||!$("consent").checked)return;
+ $("generateButton").disabled=true;status("Conectando con el motor gratuito…");
+ try{
+  clientPromise ||= Client.connect("kulkas2pintu/QWEN_EDIT_IMAGE");
+  const client=await clientPromise;status("Generando. Puede tardar unos minutos si hay espera.");
+  const result=await client.predict("/edit",{image:state.identity,prompt:$("instruction").value.trim(),lora_adapter:"Fal-Multiple-Angles",image2:state.target,seed:0,randomize_seed:true,guidance_scale:2.5,steps:6,preserve_identity:true,identity_strength:85,output_size:1280,fix_hands:true});
+  const item=result.data?.[0];const url=typeof item==="string"?item:(item?.url||item?.path);
+  if(!url)throw new Error("No se recibió una imagen.");
+  state.result=url;$("resultImage").src=url;$("resultPanel").hidden=false;$("resultPanel").scrollIntoView({behavior:"smooth"});status("Fotografía generada.");
+ }catch(e){clientPromise=null;status("El motor gratuito está ocupado o no disponible. Inténtalo nuevamente más tarde.");}
+ finally{$("generateButton").disabled=!(state.identity&&state.target&&$("consent").checked);}
+});
+$("downloadButton").addEventListener("click",async()=>{if(!state.result)return;try{const r=await fetch(state.result);const b=await r.blob();const u=URL.createObjectURL(b);const a=document.createElement("a");a.href=u;a.download="replika-ai.png";a.click();URL.revokeObjectURL(u);}catch{window.open(state.result,"_blank","noopener");}});
 if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
